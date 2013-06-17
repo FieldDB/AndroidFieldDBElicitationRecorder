@@ -2,34 +2,26 @@ package org.ilanguage.fielddbsessionrecorder;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.widget.ImageView;
+import android.util.Log;
+import android.view.View;
 
-public class MainActivity extends Activity implements MyListFragment.OnItemSelectedListener{
+public class MainActivity extends Activity implements
+		MyListFragment.OnItemSelectedListener {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-    }
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+	}
 
-    // if the wizard generated an onCreateOptionsMenu you can delete
-    // it, not needed for this tutorial
+	// TODO add onCreateOptionsMenu here
 
-  @Override
-//  public void onRssItemSelected(String link) {
-//    DetailFragment fragment = (DetailFragment) getFragmentManager()
-//            .findFragmentById(R.id.detailFragment);
-//        if (fragment != null && fragment.isInLayout()) {
-//          fragment.setText(link);
-//        } 
-//  }
-
-  public void onImageSelect(int item_id) {
-	    DetailFragment fragment = (DetailFragment) getFragmentManager()
-	            .findFragmentById(R.id.detailFragment);
-	        if (fragment != null && fragment.isInLayout()) {
-	          fragment.setImage(item_id);
-	        } 
-	  }
-    
-} 
+	public void onImageSelect(View v) {
+		Log.v("METHOD", "onImageSelect called.");
+		DetailFragment fragment = (DetailFragment) getFragmentManager()
+				.findFragmentById(R.id.detailFragment);
+		if (fragment != null && fragment.isInLayout()) {
+			fragment.setImage(v.getId(), v.getTag().toString());
+		}
+	}
+}
