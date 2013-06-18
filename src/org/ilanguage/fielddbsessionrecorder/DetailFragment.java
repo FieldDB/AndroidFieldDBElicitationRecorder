@@ -2,7 +2,6 @@ package org.ilanguage.fielddbsessionrecorder;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,11 +19,9 @@ public class DetailFragment extends Fragment {
 	}
 
 	public void setImage(int item_id, String tag) {
-		// TODO Auto-generated method stub
-		Log.v("METHOD", "setImage called.");
-		int resID = getResources().getIdentifier(tag , "drawable", getView().getContext().getPackageName());
+		int resID = getResources().getIdentifier(tag, "drawable",
+				getView().getContext().getPackageName());
 		Display = (ImageView) getView().findViewById(R.id.IVDisplay);
 		Display.setImageResource(resID);
 	}
-
 }

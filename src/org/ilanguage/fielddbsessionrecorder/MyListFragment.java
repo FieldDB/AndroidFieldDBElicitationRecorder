@@ -24,7 +24,6 @@ public class MyListFragment extends Fragment {
 		String[] imageTitles = { "test1", "test2", "test3", "test4", "test5",
 				"test6", "test7", "test8", "test9", "test10", "test11",
 				"test12", "test13" };
-		// String[] mStrings = new String[imageTitles.length];
 		ImageView[] imageViewArray = new ImageView[imageTitles.length];
 
 		for (int i = 0; i < imageTitles.length; i++) {
@@ -49,8 +48,6 @@ public class MyListFragment extends Fragment {
 			imageViewArray[i].setAdjustViewBounds(true);
 			((LinearLayout) view.findViewById(R.id.imageCarousel))
 					.addView(imageViewArray[i]);
-			Log.v("TEST", "" + imageViewArray[i]);
-
 		}
 
 		return view;
