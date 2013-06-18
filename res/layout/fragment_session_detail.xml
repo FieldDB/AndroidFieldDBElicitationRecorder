@@ -8,27 +8,26 @@
         android:id="@+id/detailsText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|center_vertical"
-        android:layout_marginTop="20dip"
-        android:text="Default Text"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="30dip" />
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dip"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="20sp" />
 
-    <ImageView
+    <VideoView
         android:id="@+id/IVDisplay"
         android:layout_width="fill_parent"
         android:layout_height="0dip"
+        android:layout_gravity="center_horizontal|center_vertical"
         android:layout_marginLeft="40dp"
         android:layout_marginRight="20dp"
-        android:layout_weight="1"
-        android:src="@drawable/test1" >
-    </ImageView>
+        android:layout_weight="1" />
 
     <Button
         android:id="@+id/captureFront"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:onClick="onClickCamera"
-        android:text="@string/take_photo" />
+        android:text="@string/record_video" />
 
 </LinearLayout>

@@ -1,10 +1,14 @@
 package org.ilanguage.fielddbsessionrecorder;
 
+import java.io.File;
+
 import android.app.Activity;
 import android.app.Fragment;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
+import android.media.ThumbnailUtils;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Environment;
+import android.provider.MediaStore.Video.Thumbnails;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -20,35 +24,38 @@ public class MyListFragment extends Fragment {
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_session_overview,
 				container, false);
-
-		String[] imageTitles = { "test1", "test2", "test3", "test4", "test5",
-				"test6", "test7", "test8", "test9", "test10", "test11",
-				"test12", "test13" };
-		ImageView[] imageViewArray = new ImageView[imageTitles.length];
-
-		for (int i = 0; i < imageTitles.length; i++) {
-			imageViewArray[i] = new ImageView(view.getContext());
-
-			int resID = getResources().getIdentifier(imageTitles[i],
-					"drawable", view.getContext().getPackageName());
-			Drawable myImage = getResources().getDrawable(resID);
-			imageViewArray[i].setImageDrawable(myImage);
-			imageViewArray[i].setTag(imageTitles[i].toString());
-			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-					LinearLayout.LayoutParams.WRAP_CONTENT,
-					LinearLayout.LayoutParams.WRAP_CONTENT);
-			imageViewArray[i].setLayoutParams(lp);
-			imageViewArray[i].setPadding(5, 0, 5, 0);
-			imageViewArray[i].setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					updateImage(v);
-				}
-			});
-			imageViewArray[i].setAdjustViewBounds(true);
-			((LinearLayout) view.findViewById(R.id.imageCarousel))
-					.addView(imageViewArray[i]);
-		}
+		
+		updateThumbnails(view);
+//		File dir = Environment.getExternalStorageDirectory();
+//		String SD_PATH = dir.getAbsolutePath() + "/FieldDBSessions";
+//		File file = new File(SD_PATH);
+//		File allThumbnails[] = file.listFiles();
+//		ImageView[] imageViewArray = new ImageView[allThumbnails.length];
+//		//
+//		for (int i = 0; i < allThumbnails.length; i++) {
+//			Bitmap bmThumbnail;
+//			bmThumbnail = ThumbnailUtils.createVideoThumbnail(
+//					allThumbnails[i].getPath(), Thumbnails.MINI_KIND);
+//
+//			imageViewArray[i] = new ImageView(view.getContext());
+//
+//			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+//					LinearLayout.LayoutParams.WRAP_CONTENT,
+//					LinearLayout.LayoutParams.WRAP_CONTENT);
+//			imageViewArray[i].setLayoutParams(lp);
+//			imageViewArray[i].setPadding(5, 0, 5, 0);
+//			imageViewArray[i].setAdjustViewBounds(true);
+//			imageViewArray[i].setImageBitmap(bmThumbnail);
+//			imageViewArray[i].setTag(allThumbnails[i].getPath());
+//			imageViewArray[i].setOnClickListener(new OnClickListener() {
+//				@Override
+//				public void onClick(View v) {
+//					updateVideo(v);
+//				}
+//			});
+//			((LinearLayout) view.findViewById(R.id.thumbnailCarousel))
+//					.addView(imageViewArray[i]);
+//		}
 
 		return view;
 	}
@@ -64,11 +71,45 @@ public class MyListFragment extends Fragment {
 		}
 	}
 
+	public void updateThumbnails(View view) {
+		File dir = Environment.getExternalStorageDirectory();
+		String SD_PATH = dir.getAbsolutePath() + "/FieldDBSessions";
+		File file = new File(SD_PATH);
+		File allThumbnails[] = file.listFiles();
+		ImageView[] imageViewArray = new ImageView[allThumbnails.length];
+		//
+		for (int i = 0; i < allThumbnails.length; i++) {
+			Bitmap bmThumbnail;
+			bmThumbnail = ThumbnailUtils.createVideoThumbnail(
+					allThumbnails[i].getPath(), Thumbnails.MINI_KIND);
+
+			imageViewArray[i] = new ImageView(view.getContext());
+
+			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+					LinearLayout.LayoutParams.WRAP_CONTENT,
+					LinearLayout.LayoutParams.WRAP_CONTENT);
+			imageViewArray[i].setLayoutParams(lp);
+			imageViewArray[i].setPadding(5, 0, 5, 0);
+			imageViewArray[i].setAdjustViewBounds(true);
+			imageViewArray[i].setImageBitmap(bmThumbnail);
+			imageViewArray[i].setTag(allThumbnails[i].getPath());
+			imageViewArray[i].setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					updateVideo(v);
+				}
+			});
+			((LinearLayout) view.findViewById(R.id.thumbnailCarousel))
+					.addView(imageViewArray[i]);
+		}
+	}
+	
+	
 	public interface OnItemSelectedListener {
-		public void onImageSelect(View v);
+		public void onVideoSelect(View v);
 	}
 
-	public void updateImage(View v) {
-		listener.onImageSelect(v);
+	public void updateVideo(View v) {
+		listener.onVideoSelect(v);
 	}
 }

@@ -1,14 +1,18 @@
 package org.ilanguage.fielddbsessionrecorder;
 
 import android.app.Fragment;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.MediaController;
+import android.widget.TextView;
+import android.widget.VideoView;
 
 public class DetailFragment extends Fragment {
-	ImageView Display;
+	VideoView Display;
+	TextView Text;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -18,10 +22,16 @@ public class DetailFragment extends Fragment {
 		return view;
 	}
 
-	public void setImage(int item_id, String tag) {
-		int resID = getResources().getIdentifier(tag, "drawable",
-				getView().getContext().getPackageName());
-		Display = (ImageView) getView().findViewById(R.id.IVDisplay);
-		Display.setImageResource(resID);
+	public void setVideo(String tag) {
+		
+		Text = (TextView) getView().findViewById(R.id.detailsText);
+		Text.setText(tag);
+		Uri vidUri = Uri.parse(tag);
+		Display = (VideoView) getView().findViewById(R.id.IVDisplay);
+		MediaController mediaController = new MediaController(getView().getContext());
+		mediaController.setAnchorView(Display);
+		Display.setMediaController(mediaController);
+		Display.setVideoURI(vidUri);
+		Display.start();
 	}
 }

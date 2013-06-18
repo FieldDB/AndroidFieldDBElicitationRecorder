@@ -4,17 +4,12 @@
     android:layout_height="wrap_content" >
 
     <LinearLayout
-        android:id="@+id/imageCarousel"
+        android:id="@+id/thumbnailCarousel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
 
     </LinearLayout>
 
-</HorizontalScrollView> <!-- <Button -->
-<!-- android:id="@+id/button1" -->
-<!-- android:layout_width="wrap_content" -->
-<!-- android:layout_height="wrap_content" -->
-<!-- android:text="Press to update" -->
-<!-- /> -->
+</HorizontalScrollView> 
 
