@@ -7,31 +7,35 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.MediaController;
-import android.widget.TextView;
 import android.widget.VideoView;
 
 public class DetailFragment extends Fragment {
 	VideoView Display;
-	TextView Text;
+	// TextView Text;
+
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_session_detail,
 				container, false);
+
 		return view;
 	}
 
 	public void setVideo(String tag) {
-		
-		Text = (TextView) getView().findViewById(R.id.detailsText);
-		Text.setText(tag);
+
+		// Text = (TextView) getView().findViewById(R.id.detailsText);
+		// Text.setText(tag);
 		Uri vidUri = Uri.parse(tag);
 		Display = (VideoView) getView().findViewById(R.id.IVDisplay);
-		MediaController mediaController = new MediaController(getView().getContext());
+		MediaController mediaController = new MediaController(getView()
+				.getContext());
 		mediaController.setAnchorView(Display);
 		Display.setMediaController(mediaController);
 		Display.setVideoURI(vidUri);
+		Display.requestFocus();
+		Display.bringToFront();
 		Display.start();
 	}
 }

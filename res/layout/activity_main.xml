@@ -1,29 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <fragment
-        android:id="@+id/detailFragment"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:id="@+id/detailFragmentContainer"
+        android:layout_width="fill_parent"
         android:layout_height="0dip"
-        android:layout_weight=".7"
-        class="org.ilanguage.fielddbsessionrecorder.DetailFragment" >
-    </fragment>
+        android:layout_weight="80" >
 
-    <RelativeLayout
-        android:layout_width="match_parent"
+        <fragment
+            android:id="@+id/detailFragment"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            class="org.ilanguage.fielddbsessionrecorder.DetailFragment" >
+        </fragment>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/listFragmentContainer"
+        android:layout_width="fill_parent"
         android:layout_height="0dip"
-        android:layout_weight=".3"
-        android:paddingTop="5dip" >
+        android:layout_weight="20" >
 
         <fragment
             android:id="@+id/listFragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            class="org.ilanguage.fielddbsessionrecorder.MyListFragment" >
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            class="org.ilanguage.fielddbsessionrecorder.ListFragment" >
         </fragment>
-    </RelativeLayout>
+    </LinearLayout>
 
 </LinearLayout>
