@@ -3,8 +3,10 @@ package org.ilanguage.fielddbsessionrecorder;
 import java.io.File;
 
 import android.app.Activity;
-import android.app.FragmentTransaction;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,31 +16,92 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.MediaController;
+import android.widget.TextView;
 import android.widget.VideoView;
 
 public class MainActivity extends Activity implements
 		ListFragment.OnItemSelectedListener {
 	private static final int NEW_SESSION_ID = Menu.FIRST;
-	private static final int SETTINGS_ID = Menu.FIRST + 1;
+	private static final int NEW_VIDEO_ID = Menu.FIRST + 1;
+	private static final int SETTINGS_ID = Menu.FIRST + 2;
 	private static final int CAMERA_VID_REQUEST = 1337;
+	private static final int ACTIVITY_EDIT = 42;
+
+	private File videosFolder;
 	private DatumsDbAdapter mDbHelper;
+
+	private EditText mCouch_IDText;
+	private EditText mRow_IDText;
+	private EditText mField1Text;
+	private EditText mField2Text;
+	private EditText mField3Text;
+	private EditText mField4Text;
+	private EditText mField5Text;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		// Create video folder if it does not already exist
+		videosFolder = new File(Environment.getExternalStorageDirectory(),
+				"FieldDBSessions");
+		videosFolder.mkdir();
 		super.onCreate(savedInstanceState);
+
 		setContentView(R.layout.activity_main);
+		// populateFields(test);
+		mDbHelper = new DatumsDbAdapter(this);
+		DetailFragment detailFragment = (DetailFragment) getFragmentManager()
+				.findFragmentById(R.id.detailFragment);
+		if (detailFragment != null && detailFragment.isInLayout()) {
+			// Get pointers to EditText fields if they are in the view
+			mCouch_IDText = (EditText) findViewById(R.id.couch_id);
+			mRow_IDText = (EditText) findViewById(R.id.row_id);
+			mField1Text = (EditText) findViewById(R.id.field1);
+			mField2Text = (EditText) findViewById(R.id.field2);
+			mField3Text = (EditText) findViewById(R.id.field3);
+			mField4Text = (EditText) findViewById(R.id.field4);
+			mField5Text = (EditText) findViewById(R.id.field5);
+
+			// Hide empty session info on startup
+			if ((mRow_IDText.getText().toString()).equals("")) {
+				hideSessionInfo();
+			} else {
+				showSessionInfo();
+			}
+
+			Button confirmButton = (Button) findViewById(R.id.confirm);
+			confirmButton.setOnClickListener(new View.OnClickListener() {
+
+				public void onClick(View view) {
+					updateSessionInfo();
+					ListFragment listFragment = (ListFragment) getFragmentManager()
+							.findFragmentById(R.id.listFragment);
+					listFragment.updateThumbnails(listFragment.getView());
+				}
+
+			});
+		}
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
-		menu.add(0, NEW_SESSION_ID, 0, R.string.menu_new_session);
-		menu.add(0, SETTINGS_ID, 0, R.string.menu_settings);
 
-		return true;
+		// TODO Temporarily getting rid of options menu in portrait mode
+
+		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			super.onCreateOptionsMenu(menu);
+			menu.add(0, NEW_SESSION_ID, 0, R.string.menu_new_session);
+			menu.add(0, NEW_VIDEO_ID, 0, R.string.menu_new_video);
+			menu.add(0, SETTINGS_ID, 0, R.string.menu_settings);
+
+			return true;
+		} else {
+			return true;
+		}
+
 	}
 
 	@Override
@@ -46,6 +109,9 @@ public class MainActivity extends Activity implements
 		switch (item.getItemId()) {
 		case NEW_SESSION_ID:
 			createSession();
+			return true;
+		case NEW_VIDEO_ID:
+			recordVideo();
 			return true;
 		case SETTINGS_ID:
 			goToSettings();
@@ -55,8 +121,16 @@ public class MainActivity extends Activity implements
 		return super.onMenuItemSelected(featureId, item);
 	}
 
-	// TODO EXPAND INTO ACTIVITY
 	private void createSession() {
+		mDbHelper.open();
+		long id = mDbHelper.createNote("", "", "", "", "", "");
+		showSessionInfo();
+		populateFields(id);
+		return;
+	}
+
+	private void recordVideo() {
+		// Execute recording method
 		ListFragment listFragment = (ListFragment) getFragmentManager()
 				.findFragmentById(R.id.listFragment);
 		onClickCamera(listFragment.getView());
@@ -71,12 +145,34 @@ public class MainActivity extends Activity implements
 		Intent cameraIntent = new Intent(
 				android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
 
-		// Create new video file (and folder, if needed)
-		File videosFolder = new File(Environment.getExternalStorageDirectory(),
-				"FieldDBSessions");
-		videosFolder.mkdirs();
+		mRow_IDText = (EditText) findViewById(R.id.row_id);
+		String rowID;
+
+		if (!(mRow_IDText.getText().toString()).equals("")) {
+			// Save any changes to session info before starting video intent
+			updateSessionInfo();
+
+			rowID = mRow_IDText.getText().toString();
+		} else {
+			AlertDialog.Builder alert = new AlertDialog.Builder(this);
+			alert.setTitle(R.string.notification); // Set Alert dialog title
+													// here
+			alert.setMessage(R.string.session_required); // Message here
+
+			alert.setPositiveButton(R.string.ok,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog,
+								int whichButton) {
+							dialog.cancel();
+						}
+					});
+			AlertDialog alertDialog = alert.create();
+			alertDialog.show();
+			return;
+		}
 		String time = String.valueOf(System.currentTimeMillis());
-		String video_filename = "fielddb_session_" + time + ".mp4";
+		String video_filename = "fielddb_session_" + time + "_" + rowID
+				+ ".mp4";
 		File video = new File(videosFolder, video_filename);
 		Uri uriSavedVideo = Uri.fromFile(video);
 
@@ -88,10 +184,10 @@ public class MainActivity extends Activity implements
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == CAMERA_VID_REQUEST) {
 			if (data.getData() != null) {
-				DetailFragment fragment = (DetailFragment) getFragmentManager()
+				DetailFragment detailFragment = (DetailFragment) getFragmentManager()
 						.findFragmentById(R.id.detailFragment);
 
-				if (fragment != null && fragment.isInLayout()) {
+				if (detailFragment != null && detailFragment.isInLayout()) {
 					VideoView vid = (VideoView) findViewById(R.id.IVDisplay);
 					MediaController mediaController = new MediaController(this);
 					mediaController.setAnchorView(vid);
@@ -102,87 +198,135 @@ public class MainActivity extends Activity implements
 					String uriToString = mVideoUri.toString();
 					String[] uriParts = uriToString.split("\\.");
 					String[] uriSubParts = uriParts[0].split("_");
-					long sessionID = Long.parseLong(uriSubParts[2]);
+					// long videoID = Long.parseLong(uriSubParts[2]);
+					long rowID = Long.parseLong(uriSubParts[3]);
+					populateFields(rowID);
 
-					mDbHelper = new DatumsDbAdapter(this);
-					mDbHelper.open();
-					long id = mDbHelper.createNote(sessionID, "", "TEMP",
-							"TEMP", "", "", "");
-
-					// TEST
-					// CODE BELOW RETURNS CORRECT INFO; RECORD IS BEING CREATED
-					// TODO MAKE VIEW POPULATE FIELD BASED ON WHICHEVER SESSION
-					// ID IS CURRENTLY SHOWING
-
-					Cursor note = mDbHelper.fetchNote(id);
-
-					Log.v("TEST",
-							note.getString(note
-									.getColumnIndexOrThrow(DatumsDbAdapter.KEY_ROWID))
-									+ " "
-									+ note.getString(note
-											.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD1))
-									+ " "
-									+ note.getString(note
-											.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD2))
-									+ " "
-									+ note.getString(note
-											.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD3)));
-
-					//END TEST
-					
-					ListFragment mainFragment = (ListFragment) getFragmentManager()
+					ListFragment listFragment = (ListFragment) getFragmentManager()
 							.findFragmentById(R.id.listFragment);
-					mainFragment.updateThumbnails(mainFragment.getView());
-
+					listFragment.updateThumbnails(listFragment.getView());
 				}
 			}
 		}
 	}
 
 	public void onVideoSelect(View v) {
-		DetailFragment fragment = (DetailFragment) getFragmentManager()
+		DetailFragment detailFragment = (DetailFragment) getFragmentManager()
 				.findFragmentById(R.id.detailFragment);
-		if (fragment != null && fragment.isInLayout()) {
-			fragment.setVideo(v.getTag().toString());
+		String uriToString = v.getTag().toString();
+		String[] uriParts = uriToString.split("\\.");
+		String[] uriSubParts = uriParts[0].split("_");
+		// long videoID = Long.parseLong(uriSubParts[2]);
+		long rowID = Long.parseLong(uriSubParts[3]);
+
+		if (detailFragment != null && detailFragment.isInLayout()) {
+			showSessionInfo();
+			updateSessionInfo();
+			populateFields(rowID);
+			detailFragment.setVideo(v.getTag().toString());
+		} else {
+			Intent i = new Intent(this, DetailActivity.class);
+			i.putExtra("tag", v.getTag().toString());
+			startActivity(i);
+		}
+
+		Log.v("TEST", "onVideoSelect clicked!");
+	}
+
+	// Commenting this method out because it's rather pointless... maybe can use
+	// in another activity
+	// public void showHideVids(View v) {
+	// ListFragment listFragment = (ListFragment) getFragmentManager()
+	// .findFragmentById(R.id.listFragment);
+	// if (listFragment != null && listFragment.isInLayout()) {
+	// LinearLayout listContainer = (LinearLayout)
+	// findViewById(R.id.listFragmentContainer);
+	// LinearLayout vidContainer = (LinearLayout)
+	// findViewById(R.id.IVDisplayContainer);
+	// FragmentTransaction ft = getFragmentManager().beginTransaction();
+	// Boolean currentState = listFragment.isVisible();
+	// if (currentState == true) {
+	// ft.hide(listFragment);
+	// LinearLayout.LayoutParams newListParams = new LinearLayout.LayoutParams(
+	// 0, 0);
+	// newListParams.weight = 0;
+	// listContainer.setLayoutParams(newListParams);
+	// LinearLayout.LayoutParams newVidParams = new LinearLayout.LayoutParams(
+	// 0, 0);
+	// newVidParams.weight = 0;
+	// vidContainer.setLayoutParams(newVidParams);
+	//
+	// } else {
+	// ft.show(listFragment);
+	// LinearLayout.LayoutParams newListParams = new LinearLayout.LayoutParams(
+	// LayoutParams.MATCH_PARENT, 0);
+	// newListParams.weight = 20;
+	// listContainer.setLayoutParams(newListParams);
+	// LinearLayout.LayoutParams newVidParams = new LinearLayout.LayoutParams(
+	// LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+	// newVidParams.weight = 1;
+	// vidContainer.setLayoutParams(newVidParams);
+	//
+	// }
+	// ft.commit();
+	// }
+	// }
+
+	private void populateFields(Long rowID) {
+		if (rowID != null) {
+			mDbHelper.open();
+			Cursor note = mDbHelper.fetchNote(rowID);
+
+			startManagingCursor(note);
+			mRow_IDText.setText(note.getString(note
+					.getColumnIndexOrThrow(DatumsDbAdapter.KEY_ROWID)));
+			mCouch_IDText.setText(note.getString(note
+					.getColumnIndexOrThrow(DatumsDbAdapter.KEY_COUCH_ID)));
+			mField1Text.setText(note.getString(note
+					.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD1)));
+			mField2Text.setText(note.getString(note
+					.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD2)));
+			mField3Text.setText(note.getString(note
+					.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD3)));
+			mField4Text.setText(note.getString(note
+					.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD4)));
+			mField5Text.setText(note.getString(note
+					.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD5)));
 		}
 	}
 
-	public void showHideVids(View v) {
-		ListFragment listFragment = (ListFragment) getFragmentManager()
-				.findFragmentById(R.id.listFragment);
-		if (listFragment != null && listFragment.isInLayout()) {
-			LinearLayout listContainer = (LinearLayout) findViewById(R.id.listFragmentContainer);
-			LinearLayout vidContainer = (LinearLayout) findViewById(R.id.IVDisplayContainer);
-			FragmentTransaction ft = getFragmentManager().beginTransaction();
-			Boolean currentState = listFragment.isVisible();
-			if (currentState == true) {
-				ft.hide(listFragment);
-				// vidContainer.setVisibility(View.INVISIBLE);
-				LinearLayout.LayoutParams newListParams = new LinearLayout.LayoutParams(
-						0, 0);
-				newListParams.weight = 0;
-				listContainer.setLayoutParams(newListParams);
-				LinearLayout.LayoutParams newVidParams = new LinearLayout.LayoutParams(
-						0, 0);
-				newVidParams.weight = 0;
-				vidContainer.setLayoutParams(newVidParams);
+	public void updateSessionInfo() {
+		mDbHelper.open();
 
-			} else {
-				ft.show(listFragment);
-				// vidContainer.setVisibility(View.VISIBLE);
-				LinearLayout.LayoutParams newListParams = new LinearLayout.LayoutParams(
-						LayoutParams.MATCH_PARENT, 0);
-				newListParams.weight = 20;
-				listContainer.setLayoutParams(newListParams);
-				LinearLayout.LayoutParams newVidParams = new LinearLayout.LayoutParams(
-						LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-				newVidParams.weight = 1;
-				vidContainer.setLayoutParams(newVidParams);
-
-			}
-			ft.commit();
+		if ((mRow_IDText.getText().toString()).equals("")) {
+			return;
 		}
+
+		Long mRowId = Long.parseLong(mRow_IDText.getText().toString());
+		String couch_id = mCouch_IDText.getText().toString();
+		String field1 = mField1Text.getText().toString();
+		String field2 = mField2Text.getText().toString();
+		String field3 = mField3Text.getText().toString();
+		String field4 = mField4Text.getText().toString();
+		String field5 = mField5Text.getText().toString();
+
+		mDbHelper.updateNote(mRowId, couch_id, field1, field2, field3, field4,
+				field5);
+	}
+
+	public void showSessionInfo() {
+		TextView warningText = (TextView) findViewById(R.id.warning_text);
+		warningText.setVisibility(TextView.GONE);
+		LinearLayout detailContainer = (LinearLayout) findViewById(R.id.main_detail_container);
+		detailContainer.setVisibility(LinearLayout.VISIBLE);
+
+	}
+
+	public void hideSessionInfo() {
+		TextView warningText = (TextView) findViewById(R.id.warning_text);
+		warningText.setVisibility(TextView.VISIBLE);
+		LinearLayout detailContainer = (LinearLayout) findViewById(R.id.main_detail_container);
+		detailContainer.setVisibility(LinearLayout.GONE);
 	}
 
 }

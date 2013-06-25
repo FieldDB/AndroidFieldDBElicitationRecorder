@@ -7,6 +7,10 @@
     <string name="show_hide">Show/Hide</string>
     <string name="menu_settings">Settings</string>
     <string name="menu_new_session">New Session</string>
+    <string name="menu_new_video">Record Video</string>
+    <string name="notification">Notification</string>
+    <string name="ok">OK</string>
+    <string name="session_required">Please create a new session or select an existing session before continuing.</string>
     <string name="couch_id">Couch ID</string>
     <string name="field1">Goal</string>
     <string name="field2">Consultants</string>

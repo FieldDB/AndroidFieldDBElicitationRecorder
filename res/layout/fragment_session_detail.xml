@@ -8,22 +8,20 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="right|top"
-        android:gravity="right" >
+        android:orientation="vertical" >
 
-        <ImageView
-            android:layout_width="30sp"
-            android:layout_height="30sp"
-            android:layout_marginTop="10dip"
-            android:clickable="true"
-            android:contentDescription="@string/show_hide"
-            android:onClick="showHideVids"
-            android:padding="5sp"
-            android:src="@drawable/ic_expand" />
+        <TextView
+            android:id="@+id/warning_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|top"
+            android:text="@string/session_required"
+            android:textColor="#FFFFFF" />
+
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/linearLayout2"
+        android:id="@+id/main_detail_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:baselineAligned="false"
@@ -46,7 +44,7 @@
                 android:orientation="vertical" >
 
                 <EditText
-                    android:id="@+id/couch_id"
+                    android:id="@+id/row_id"
                     style="@style/EditText"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
@@ -55,7 +53,7 @@
                     android:visibility="gone" />
 
                 <EditText
-                    android:id="@+id/session_id"
+                    android:id="@+id/couch_id"
                     style="@style/EditText"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"

@@ -103,10 +103,9 @@ public class DatumsDbAdapter {
 	 * 
 	 * @return rowId or -1 if failed
 	 */
-	public long createNote(long row_id, String couch_id, String field1, String field2, String field3,
+	public long createNote(String couch_id, String field1, String field2, String field3,
 			String field4, String field5) {
 		ContentValues initialValues = new ContentValues();
-		initialValues.put(KEY_ROWID, row_id);
 		initialValues.put(KEY_COUCH_ID, couch_id);
 		initialValues.put(KEY_FIELD1, field1);
 		initialValues.put(KEY_FIELD2, field2);

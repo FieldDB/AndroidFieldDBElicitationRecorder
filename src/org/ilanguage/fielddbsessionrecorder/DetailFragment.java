@@ -38,4 +38,6 @@ public class DetailFragment extends Fragment {
 		Display.bringToFront();
 		Display.start();
 	}
+	
+	
 }
