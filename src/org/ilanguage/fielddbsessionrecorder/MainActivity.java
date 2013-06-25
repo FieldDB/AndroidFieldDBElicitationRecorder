@@ -211,19 +211,21 @@ public class MainActivity extends Activity implements
 	}
 
 	public void onVideoSelect(View v) {
-		DetailFragment detailFragment = (DetailFragment) getFragmentManager()
-				.findFragmentById(R.id.detailFragment);
+		VideoFragment videoFragment = (VideoFragment) getFragmentManager()
+				.findFragmentById(R.id.videoFragment);
+//		DetailFragment detailFragment = (DetailFragment) getFragmentManager()
+//				.findFragmentById(R.id.detailFragment);
 		String uriToString = v.getTag().toString();
 		String[] uriParts = uriToString.split("\\.");
 		String[] uriSubParts = uriParts[0].split("_");
 		// long videoID = Long.parseLong(uriSubParts[2]);
 		long rowID = Long.parseLong(uriSubParts[3]);
 
-		if (detailFragment != null && detailFragment.isInLayout()) {
+		if (videoFragment != null && videoFragment.isInLayout()) {
 			showSessionInfo();
 			updateSessionInfo();
 			populateFields(rowID);
-			detailFragment.setVideo(v.getTag().toString());
+			videoFragment.setVideo(v.getTag().toString());
 		} else {
 			Intent i = new Intent(this, DetailActivity.class);
 			i.putExtra("tag", v.getTag().toString());

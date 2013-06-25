@@ -34,8 +34,8 @@ public class DetailActivity extends Activity {
 		}
 		setContentView(R.layout.activity_detail);
 
-		LinearLayout videoContainer = (LinearLayout) findViewById(R.id.IVDisplayContainer);
-		videoContainer.setVisibility(LinearLayout.GONE);
+//		LinearLayout videoContainer = (LinearLayout) findViewById(R.id.IVDisplayContainer);
+//		videoContainer.setVisibility(LinearLayout.GONE);
 		
 		// Use videoURI from intent to populate fields in view
 		Intent currentIntent = this.getIntent();

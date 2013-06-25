@@ -23,21 +23,21 @@ public class DetailFragment extends Fragment {
 		return view;
 	}
 
-	public void setVideo(String tag) {
-
-		// Text = (TextView) getView().findViewById(R.id.detailsText);
-		// Text.setText(tag);
-		Uri vidUri = Uri.parse(tag);
-		Display = (VideoView) getView().findViewById(R.id.IVDisplay);
-		MediaController mediaController = new MediaController(getView()
-				.getContext());
-		mediaController.setAnchorView(Display);
-		Display.setMediaController(mediaController);
-		Display.setVideoURI(vidUri);
-		Display.requestFocus();
-		Display.bringToFront();
-		Display.start();
-	}
+//	public void setVideo(String tag) {
+//
+//		// Text = (TextView) getView().findViewById(R.id.detailsText);
+//		// Text.setText(tag);
+//		Uri vidUri = Uri.parse(tag);
+//		Display = (VideoView) getView().findViewById(R.id.IVDisplay);
+//		MediaController mediaController = new MediaController(getView()
+//				.getContext());
+//		mediaController.setAnchorView(Display);
+//		Display.setMediaController(mediaController);
+//		Display.setVideoURI(vidUri);
+//		Display.requestFocus();
+//		Display.bringToFront();
+//		Display.start();
+//	}
 	
 	
 }
