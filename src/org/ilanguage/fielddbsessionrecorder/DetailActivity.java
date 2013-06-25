@@ -6,10 +6,10 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 
 public class DetailActivity extends Activity {
 	private EditText mCouch_IDText;
@@ -34,6 +34,9 @@ public class DetailActivity extends Activity {
 		}
 		setContentView(R.layout.activity_detail);
 
+		LinearLayout videoContainer = (LinearLayout) findViewById(R.id.IVDisplayContainer);
+		videoContainer.setVisibility(LinearLayout.GONE);
+		
 		// Use videoURI from intent to populate fields in view
 		Intent currentIntent = this.getIntent();
 		String uriToString = currentIntent.getStringExtra("tag");
