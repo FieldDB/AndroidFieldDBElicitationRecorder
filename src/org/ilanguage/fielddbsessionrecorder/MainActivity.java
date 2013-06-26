@@ -2,7 +2,6 @@ package org.ilanguage.fielddbsessionrecorder;
 
 import java.io.File;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,7 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,8 +18,7 @@ import android.widget.EditText;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
-public class MainActivity extends Activity implements
-		ListFragment.OnItemSelectedListener {
+public class MainActivity extends FragmentActivity implements PublicInterface {
 	private static final int NEW_SESSION_ID = Menu.FIRST;
 	private static final int NEW_VIDEO_ID = Menu.FIRST + 1;
 	private static final int SETTINGS_ID = Menu.FIRST + 2;
@@ -32,16 +30,11 @@ public class MainActivity extends Activity implements
 	VideoFragment videoFragment;
 	DetailFragment detailFragment;
 	ListFragment listFragment;
-	
+
 	private DatumsDbAdapter mDbHelper;
 
 	private EditText mCouch_IDText;
 	private EditText mRow_IDText;
-	private EditText mField1Text;
-	private EditText mField2Text;
-	private EditText mField3Text;
-	private EditText mField4Text;
-	private EditText mField5Text;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,41 +45,35 @@ public class MainActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_main);
+
 		// Get fragments
-		detailFragment = (DetailFragment) getFragmentManager()
+		detailFragment = (DetailFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.detailFragment);
-		videoFragment = (VideoFragment) getFragmentManager()
+		videoFragment = (VideoFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.videoFragment);
-		listFragment = (ListFragment) getFragmentManager()
+		listFragment = (ListFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.listFragment);
-		
+
 		// populateFields(test);
 		mDbHelper = new DatumsDbAdapter(this);
-		
+
 		if (detailFragment != null && detailFragment.isInLayout()) {
 			// Get pointers to EditText fields if they are in the view
 			mCouch_IDText = (EditText) findViewById(R.id.couch_id);
 			mRow_IDText = (EditText) findViewById(R.id.row_id);
-			mField1Text = (EditText) findViewById(R.id.field1);
-			mField2Text = (EditText) findViewById(R.id.field2);
-			mField3Text = (EditText) findViewById(R.id.field3);
-			mField4Text = (EditText) findViewById(R.id.field4);
-			mField5Text = (EditText) findViewById(R.id.field5);
-
 		}
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
-		// TODO Temporarily getting rid of options menu in portrait mode
-
-		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+		// TODO Temporarily getting rid of options menu in portrait mode; CHANGE
+		// THIS
+		if (listFragment != null && listFragment.isInLayout()) {
 			super.onCreateOptionsMenu(menu);
 			menu.add(0, NEW_SESSION_ID, 0, R.string.menu_new_session);
 			menu.add(0, NEW_VIDEO_ID, 0, R.string.menu_new_video);
 			menu.add(0, SETTINGS_ID, 0, R.string.menu_settings);
-
 			return true;
 		} else {
 			return true;
@@ -111,7 +98,11 @@ public class MainActivity extends Activity implements
 		return super.onMenuItemSelected(featureId, item);
 	}
 
+	// DEBUG IN PORTRAIT (FROM STARTUP)
 	private void createSession() {
+		if (detailFragment == null || !detailFragment.isInLayout()) {
+			setContentView(R.layout.activity_detail);
+		}
 		mDbHelper.open();
 		long id = mDbHelper.createNote("", "", "", "", "", "");
 		showSessionInfo();
@@ -135,33 +126,21 @@ public class MainActivity extends Activity implements
 
 		mRow_IDText = (EditText) findViewById(R.id.row_id);
 		String rowID;
-
 		if (!(mRow_IDText.getText().toString()).equals("")) {
 			// Save any changes to session info before starting video intent
 			updateSessionInfo();
-
 			rowID = mRow_IDText.getText().toString();
 		} else {
-			AlertDialog.Builder alert = new AlertDialog.Builder(this);
-			alert.setTitle(R.string.notification); // Set Alert dialog title
-													// here
-			alert.setMessage(R.string.session_required); // Message here
-
-			alert.setPositiveButton(R.string.ok,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog,
-								int whichButton) {
-							dialog.cancel();
-						}
-					});
-			AlertDialog alertDialog = alert.create();
-			alertDialog.show();
+			showSelectSessionDialog();
 			return;
 		}
+
 		String time = String.valueOf(System.currentTimeMillis());
 		String video_filename = "fielddb_session_" + time + "_" + rowID
 				+ ".mp4";
+
 		File video = new File(videosFolder, video_filename);
+
 		Uri uriSavedVideo = Uri.fromFile(video);
 
 		cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uriSavedVideo);
@@ -174,9 +153,11 @@ public class MainActivity extends Activity implements
 			if (data.getData() != null) {
 				if (detailFragment != null && detailFragment.isInLayout()) {
 					VideoView vid = (VideoView) findViewById(R.id.IVDisplay);
+
 					MediaController mediaController = new MediaController(this);
 					mediaController.setAnchorView(vid);
 					vid.setMediaController(mediaController);
+
 					Uri mVideoUri = data.getData();
 					vid.setVideoURI(mVideoUri);
 
@@ -184,136 +165,83 @@ public class MainActivity extends Activity implements
 					String[] uriParts = uriToString.split("\\.");
 					String[] uriSubParts = uriParts[0].split("_");
 					// long videoID = Long.parseLong(uriSubParts[2]);
+
 					long rowID = Long.parseLong(uriSubParts[3]);
 					populateFields(rowID);
-					listFragment.updateThumbnailsInFragment(this);
+					updateThumbnails();
 				}
 			}
 		}
 	}
 
+	public void showSelectSessionDialog() {
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+		alert.setTitle(R.string.notification); // Set Alert dialog title
+												// here
+		alert.setMessage(R.string.session_required); // Message here
+
+		alert.setPositiveButton(R.string.ok,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						dialog.cancel();
+					}
+				});
+		AlertDialog alertDialog = alert.create();
+		alertDialog.show();
+		return;
+	}
+
+	// PublicInterface methods
+	@Override
 	public void onVideoSelect(View v) {
-//		DetailFragment detailFragment = (DetailFragment) getFragmentManager()
-//				.findFragmentById(R.id.detailFragment);
 		String uriToString = v.getTag().toString();
 		String[] uriParts = uriToString.split("\\.");
 		String[] uriSubParts = uriParts[0].split("_");
 		// long videoID = Long.parseLong(uriSubParts[2]);
 		long rowID = Long.parseLong(uriSubParts[3]);
 
-		if (videoFragment != null && videoFragment.isInLayout() && detailFragment != null && detailFragment.isInLayout()) {
-			showSessionInfo();
+		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
 			updateSessionInfo();
-			populateFields(rowID);
-			videoFragment.setVideo(v.getTag().toString());
 		} else {
-			Intent i = new Intent(this, DetailActivity.class);
-			i.putExtra("tag", v.getTag().toString());
-			startActivity(i);
+			// TODO Change this to fragment; get ride of DetailActivity
+			setContentView(R.layout.activity_detail);
 		}
-
-		Log.v("TEST", "onVideoSelect clicked!");
+		if (videoFragment == null) {
+			videoFragment = (VideoFragment) getSupportFragmentManager()
+					.findFragmentById(R.id.videoFragment);
+		}
+		if (detailFragment == null) {
+			detailFragment = (DetailFragment) getSupportFragmentManager()
+					.findFragmentById(R.id.detailFragment);
+		}
+		showSessionInfo();
+		populateFields(rowID);
+		videoFragment.setVideo(v.getTag().toString());
 	}
-	
+
+	@Override
+	public void updateThumbnails() {
+		if (listFragment != null && listFragment.isInLayout()) {
+			listFragment.updateThumbnailsInFragment(this);
+		}
+	}
+
+	// Private method pointers to fragment methods
 	private void updateSessionInfo() {
 		if (detailFragment != null && detailFragment.isInLayout()) {
 			detailFragment.updateSessionInfoInFragment(this);
 		}
 	}
-	
+
 	private void showSessionInfo() {
 		if (detailFragment != null && detailFragment.isInLayout()) {
 			detailFragment.showSessionInfoInFragment();
 		}
 	}
-	
+
 	private void populateFields(Long rowID) {
 		if (detailFragment != null && detailFragment.isInLayout()) {
 			detailFragment.populateFieldsInFragment(rowID);
 		}
-	}	
-	
-//	private void hideSessionInfo() {
-//		if (detailFragment != null && detailFragment.isInLayout()) {
-//			detailFragment.hideSessionInfoInFragment();
-//		}
-//	}
-
-	// Commenting this method out because it's rather pointless... maybe can use
-	// in another activity
-	// public void showHideVids(View v) {
-	// ListFragment listFragment = (ListFragment) getFragmentManager()
-	// .findFragmentById(R.id.listFragment);
-	// if (listFragment != null && listFragment.isInLayout()) {
-	// LinearLayout listContainer = (LinearLayout)
-	// findViewById(R.id.listFragmentContainer);
-	// LinearLayout vidContainer = (LinearLayout)
-	// findViewById(R.id.IVDisplayContainer);
-	// FragmentTransaction ft = getFragmentManager().beginTransaction();
-	// Boolean currentState = listFragment.isVisible();
-	// if (currentState == true) {
-	// ft.hide(listFragment);
-	// LinearLayout.LayoutParams newListParams = new LinearLayout.LayoutParams(
-	// 0, 0);
-	// newListParams.weight = 0;
-	// listContainer.setLayoutParams(newListParams);
-	// LinearLayout.LayoutParams newVidParams = new LinearLayout.LayoutParams(
-	// 0, 0);
-	// newVidParams.weight = 0;
-	// vidContainer.setLayoutParams(newVidParams);
-	//
-	// } else {
-	// ft.show(listFragment);
-	// LinearLayout.LayoutParams newListParams = new LinearLayout.LayoutParams(
-	// LayoutParams.MATCH_PARENT, 0);
-	// newListParams.weight = 20;
-	// listContainer.setLayoutParams(newListParams);
-	// LinearLayout.LayoutParams newVidParams = new LinearLayout.LayoutParams(
-	// LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-	// newVidParams.weight = 1;
-	// vidContainer.setLayoutParams(newVidParams);
-	//
-	// }
-	// ft.commit();
-	// }
-	// }
-
-//	private void populateFields(Long rowID) {
-//		if (rowID != null) {
-//			mDbHelper.open();
-//			Cursor note = mDbHelper.fetchNote(rowID);
-//
-//			startManagingCursor(note);
-//			mRow_IDText.setText(note.getString(note
-//					.getColumnIndexOrThrow(DatumsDbAdapter.KEY_ROWID)));
-//			mCouch_IDText.setText(note.getString(note
-//					.getColumnIndexOrThrow(DatumsDbAdapter.KEY_COUCH_ID)));
-//			mField1Text.setText(note.getString(note
-//					.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD1)));
-//			mField2Text.setText(note.getString(note
-//					.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD2)));
-//			mField3Text.setText(note.getString(note
-//					.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD3)));
-//			mField4Text.setText(note.getString(note
-//					.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD4)));
-//			mField5Text.setText(note.getString(note
-//					.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD5)));
-//		}
-//	}
-
-//	public void showSessionInfo() {
-//		TextView warningText = (TextView) findViewById(R.id.warning_text);
-//		warningText.setVisibility(TextView.GONE);
-//		LinearLayout detailContainer = (LinearLayout) findViewById(R.id.main_detail_container);
-//		detailContainer.setVisibility(LinearLayout.VISIBLE);
-//
-//	}
-//
-//	public void hideSessionInfo() {
-//		TextView warningText = (TextView) findViewById(R.id.warning_text);
-//		warningText.setVisibility(TextView.VISIBLE);
-//		LinearLayout detailContainer = (LinearLayout) findViewById(R.id.main_detail_container);
-//		detailContainer.setVisibility(LinearLayout.GONE);
-//	}
-
+	}
 }

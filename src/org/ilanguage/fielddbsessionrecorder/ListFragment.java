@@ -3,7 +3,6 @@ package org.ilanguage.fielddbsessionrecorder;
 import java.io.File;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -12,6 +11,7 @@ import android.media.ThumbnailUtils;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore.Video.Thumbnails;
+import android.support.v4.app.Fragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class ListFragment extends Fragment {
-	private OnItemSelectedListener listener;
+	PublicInterface mCallback;
 	private DatumsDbAdapter mDbHelper;
 
 	LinearLayout carouselLayout;
@@ -42,11 +42,11 @@ public class ListFragment extends Fragment {
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		if (activity instanceof OnItemSelectedListener) {
-			listener = (OnItemSelectedListener) activity;
+		if (activity instanceof PublicInterface) {
+			mCallback = (PublicInterface) activity;
 		} else {
 			throw new ClassCastException(activity.toString()
-					+ " must implemenet ListFragment.OnItemSelectedListener");
+					+ " must implemenet PublicInterface");
 		}
 	}
 
@@ -85,7 +85,7 @@ public class ListFragment extends Fragment {
 			imageViewArray[i].setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					updateVideo(v);
+					mCallback.onVideoSelect(v);
 				}
 			});
 
@@ -129,11 +129,11 @@ public class ListFragment extends Fragment {
 		}
 	}
 
-	public interface OnItemSelectedListener {
-		public void onVideoSelect(View v);
-	}
+	// public interface OnItemSelectedListener {
+	// public void onVideoSelect(View v);
+	// }
 
-	public void updateVideo(View v) {
-		listener.onVideoSelect(v);
-	}
+	// public void updateVideo(View v) {
+	// listener.onVideoSelect(v);
+	// }
 }
