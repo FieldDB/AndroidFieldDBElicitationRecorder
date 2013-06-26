@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,7 +24,6 @@ public class MainActivity extends FragmentActivity implements PublicInterface {
 	private static final int NEW_VIDEO_ID = Menu.FIRST + 1;
 	private static final int SETTINGS_ID = Menu.FIRST + 2;
 	private static final int CAMERA_VID_REQUEST = 1337;
-	private static final int ACTIVITY_EDIT = 42;
 
 	private File videosFolder;
 
@@ -33,7 +33,7 @@ public class MainActivity extends FragmentActivity implements PublicInterface {
 
 	private DatumsDbAdapter mDbHelper;
 
-	private EditText mCouch_IDText;
+	// private EditText mCouch_IDText;
 	private EditText mRow_IDText;
 
 	@Override
@@ -45,7 +45,17 @@ public class MainActivity extends FragmentActivity implements PublicInterface {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_main);
-
+		
+		if (savedInstanceState == null) {
+			Log.v("TEST", "savedInstanceState is null.");
+		} else {
+			Log.v("TEST", "savedInstanceState is NOT null.");
+		}
+		
+		
+		//TODO Fix portrait mode.
+		
+		
 		// Get fragments
 		detailFragment = (DetailFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.detailFragment);
@@ -59,7 +69,7 @@ public class MainActivity extends FragmentActivity implements PublicInterface {
 
 		if (detailFragment != null && detailFragment.isInLayout()) {
 			// Get pointers to EditText fields if they are in the view
-			mCouch_IDText = (EditText) findViewById(R.id.couch_id);
+			// mCouch_IDText = (EditText) findViewById(R.id.couch_id);
 			mRow_IDText = (EditText) findViewById(R.id.row_id);
 		}
 	}
@@ -67,8 +77,6 @@ public class MainActivity extends FragmentActivity implements PublicInterface {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
-		// TODO Temporarily getting rid of options menu in portrait mode; CHANGE
-		// THIS
 		if (listFragment != null && listFragment.isInLayout()) {
 			super.onCreateOptionsMenu(menu);
 			menu.add(0, NEW_SESSION_ID, 0, R.string.menu_new_session);
@@ -98,10 +106,11 @@ public class MainActivity extends FragmentActivity implements PublicInterface {
 		return super.onMenuItemSelected(featureId, item);
 	}
 
-	// DEBUG IN PORTRAIT (FROM STARTUP)
 	private void createSession() {
 		if (detailFragment == null || !detailFragment.isInLayout()) {
-			setContentView(R.layout.activity_detail);
+			setContentView(R.layout.activity_main);
+			detailFragment = (DetailFragment) getSupportFragmentManager()
+					.findFragmentById(R.id.detailFragment);
 		}
 		mDbHelper.open();
 		long id = mDbHelper.createNote("", "", "", "", "", "");
@@ -111,8 +120,7 @@ public class MainActivity extends FragmentActivity implements PublicInterface {
 	}
 
 	private void recordVideo() {
-		// Execute recording method
-		onClickCamera(listFragment.getView());
+		onClickCamera();
 		return;
 	}
 
@@ -120,13 +128,14 @@ public class MainActivity extends FragmentActivity implements PublicInterface {
 		return;
 	}
 
-	public void onClickCamera(View v) {
+	public void onClickCamera() {
 		Intent cameraIntent = new Intent(
 				android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
 
 		mRow_IDText = (EditText) findViewById(R.id.row_id);
 		String rowID;
-		if (!(mRow_IDText.getText().toString()).equals("")) {
+		if ((mRow_IDText != null)
+				&& !(mRow_IDText.getText().toString()).equals("")) {
 			// Save any changes to session info before starting video intent
 			updateSessionInfo();
 			rowID = mRow_IDText.getText().toString();
@@ -176,9 +185,9 @@ public class MainActivity extends FragmentActivity implements PublicInterface {
 
 	public void showSelectSessionDialog() {
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);
-		alert.setTitle(R.string.notification); // Set Alert dialog title
-												// here
-		alert.setMessage(R.string.session_required); // Message here
+		alert.setTitle(R.string.notification);
+
+		alert.setMessage(R.string.session_required);
 
 		alert.setPositiveButton(R.string.ok,
 				new DialogInterface.OnClickListener() {
@@ -203,8 +212,8 @@ public class MainActivity extends FragmentActivity implements PublicInterface {
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
 			updateSessionInfo();
 		} else {
-			// TODO Change this to fragment; get ride of DetailActivity
 			setContentView(R.layout.activity_detail);
+
 		}
 		if (videoFragment == null) {
 			videoFragment = (VideoFragment) getSupportFragmentManager()

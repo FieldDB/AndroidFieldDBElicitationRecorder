@@ -3,6 +3,7 @@ package org.ilanguage.fielddbsessionrecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,26 +12,30 @@ import android.widget.VideoView;
 
 public class VideoFragment extends Fragment {
 	VideoView Display;
-	// TextView Text;
-
+	MediaController mediaController;
+	String filename;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_session_video,
 				container, false);
+		Display = (VideoView) view.findViewById(R.id.IVDisplay);
+		mediaController = new MediaController(view.getContext());
+
+		if (savedInstanceState != null) {
+			String lastVideoFile = (String) savedInstanceState
+					.getString("videoTag");
+			setVideo(lastVideoFile);
+		}
 
 		return view;
 	}
 
 	public void setVideo(String tag) {
-
-		// Text = (TextView) getView().findViewById(R.id.detailsText);
-		// Text.setText(tag);
+		filename = tag;
 		Uri vidUri = Uri.parse(tag);
-		Display = (VideoView) getView().findViewById(R.id.IVDisplay);
-		MediaController mediaController = new MediaController(getView()
-				.getContext());
+
 		mediaController.setAnchorView(Display);
 		Display.setMediaController(mediaController);
 		Display.setVideoURI(vidUri);
@@ -38,6 +43,11 @@ public class VideoFragment extends Fragment {
 		Display.bringToFront();
 		Display.start();
 	}
-	
-	
+
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (!filename.isEmpty()) {
+			outState.putString("videoTag", filename);
+		}
+	}
 }
