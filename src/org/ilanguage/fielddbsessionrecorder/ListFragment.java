@@ -4,6 +4,7 @@ import java.io.File;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -24,12 +25,17 @@ public class ListFragment extends Fragment {
 	private OnItemSelectedListener listener;
 	private DatumsDbAdapter mDbHelper;
 
+	LinearLayout carouselLayout;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_session_overview,
 				container, false);
-		updateThumbnails(view);
+
+		carouselLayout = (LinearLayout) view
+				.findViewById(R.id.thumbnailCarousel);
+		updateThumbnailsInFragment(view.getContext());
 		return view;
 	}
 
@@ -44,8 +50,8 @@ public class ListFragment extends Fragment {
 		}
 	}
 
-	public void updateThumbnails(View view) {
-		mDbHelper = new DatumsDbAdapter(view.getContext());
+	public void updateThumbnailsInFragment(Context c) {
+		mDbHelper = new DatumsDbAdapter(c);
 		mDbHelper.open();
 
 		File dir = Environment.getExternalStorageDirectory();
@@ -54,8 +60,8 @@ public class ListFragment extends Fragment {
 		File allThumbnails[] = file.listFiles();
 		ImageView[] imageViewArray = new ImageView[allThumbnails.length];
 		TextView[] textViewArray = new TextView[allThumbnails.length];
-		LinearLayout carouselLayout = (LinearLayout) view
-				.findViewById(R.id.thumbnailCarousel);
+		// LinearLayout carouselLayout = (LinearLayout) view
+		// .findViewById(R.id.thumbnailCarousel);
 		// Remove all thumbnails in view before updating
 		carouselLayout.removeAllViews();
 
@@ -65,7 +71,7 @@ public class ListFragment extends Fragment {
 			bmThumbnail = ThumbnailUtils.createVideoThumbnail(
 					allThumbnails[i].getPath(), Thumbnails.MINI_KIND);
 
-			imageViewArray[i] = new ImageView(view.getContext());
+			imageViewArray[i] = new ImageView(c);
 			LinearLayout.LayoutParams image_lp = new LinearLayout.LayoutParams(
 					LinearLayout.LayoutParams.WRAP_CONTENT,
 					LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -83,7 +89,7 @@ public class ListFragment extends Fragment {
 				}
 			});
 
-			textViewArray[i] = new TextView(view.getContext());
+			textViewArray[i] = new TextView(c);
 			LinearLayout.LayoutParams text_lp = new LinearLayout.LayoutParams(
 					LinearLayout.LayoutParams.WRAP_CONTENT,
 					LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -109,8 +115,7 @@ public class ListFragment extends Fragment {
 			}
 			textViewArray[i].setText(text);
 
-			LinearLayout imageAndTextLinearLayout = new LinearLayout(
-					view.getContext());
+			LinearLayout imageAndTextLinearLayout = new LinearLayout(c);
 			LinearLayout.LayoutParams container_lp = new LinearLayout.LayoutParams(
 					LinearLayout.LayoutParams.WRAP_CONTENT,
 					LinearLayout.LayoutParams.WRAP_CONTENT);
