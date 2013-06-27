@@ -1,6 +1,7 @@
 package ca.ilanguage.fielddbsessionrecorder;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
@@ -11,6 +12,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -84,10 +86,29 @@ public class MainSessionRecorderActivity extends ListActivity {
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog,
 								int whichButton) {
+							// Delete session and all videos from that session
+							File dir = Environment
+									.getExternalStorageDirectory();
+							String SD_PATH = dir.getAbsolutePath()
+									+ "/FieldDBSessions";
+							File file = new File(SD_PATH);
+							File allVideos[] = file.listFiles();
 
-							// TODO Also delete all video files associated with
-							// this session.
-
+							// Should be fine to iterate over array since not
+							// removing actual array items but rather deleting
+							// from SD card
+							for (int j = 0; j < allVideos.length; j++) {
+								String filePath = allVideos[j].getPath();
+								String[] filePathParts = filePath.split("\\.");
+								String[] filePathSubParts = filePathParts[0]
+										.split("_");
+								Long rowID = Long
+										.parseLong(filePathSubParts[3]);
+								if (rowID == row_id) {
+									File fileToDelete = new File(filePath);
+									boolean deleted = fileToDelete.delete();
+								}
+							}
 							mDbHelper.deleteNote(row_id);
 							fillData();
 						}
