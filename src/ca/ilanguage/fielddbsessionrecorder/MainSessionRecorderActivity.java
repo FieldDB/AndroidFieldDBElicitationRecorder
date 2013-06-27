@@ -117,7 +117,9 @@ public class MainSessionRecorderActivity extends ListActivity {
 	}
 
 	private void createNote() {
+		Long id = mDbHelper.createNote("", "", "", "", "", "");
 		Intent i = new Intent(this, SessionAccess.class);
+		i.putExtra(DatumsDbAdapter.KEY_ROWID, id);
 		startActivity(i);
 	}
 

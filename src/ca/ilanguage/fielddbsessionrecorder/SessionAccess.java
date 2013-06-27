@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -20,26 +21,13 @@ public class SessionAccess extends FragmentActivity {
 	private File videosFolder;
 	String rowID;
 
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main_session_access);
-		
+
 		mRow_IDText = (EditText) findViewById(R.id.row_id);
 		rowID = mRow_IDText.getText().toString();
-//		Long currentRowId = Long.parseLong(rowID);
-		
-//		Bundle bundle=new Bundle();
-//		bundle.putLong("currentRowId", currentRowId);
-//		videoGridFragment = new VideoGridFragment();
-//		videoGridFragment.setArguments(bundle);
-		
-//		Log.v("TEST", "arguments in SessionAccess " + videoGridFragment.getArguments().getLong("currentRowId"));
-		
-		
-		
-		
 		// Create video folder if it does not already exist
 		videosFolder = new File(Environment.getExternalStorageDirectory(),
 				"FieldDBSessions");
@@ -65,9 +53,6 @@ public class SessionAccess extends FragmentActivity {
 	}
 
 	public void recordVideo() {
-		if (rowID == null) {
-			return;
-		}
 		Intent cameraIntent = new Intent(
 				android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
 
@@ -90,23 +75,6 @@ public class SessionAccess extends FragmentActivity {
 				videoGridFragment = (VideoGridFragment) getSupportFragmentManager()
 						.findFragmentById(R.id.videoGridFragment);
 				if (videoGridFragment != null && videoGridFragment.isInLayout()) {
-					// VideoView vid = (VideoView) findViewById(R.id.IVDisplay);
-
-					// MediaController mediaController = new
-					// MediaController(this);
-					// mediaController.setAnchorView(vid);
-					// vid.setMediaController(mediaController);
-
-					// Uri mVideoUri = data.getData();
-					// vid.setVideoURI(mVideoUri);
-
-					// uriToString = mVideoUri.toString();
-					// String[] uriParts = uriToString.split("\\.");
-					// String[] uriSubParts = uriParts[0].split("_");
-					// long videoID = Long.parseLong(uriSubParts[2]);
-
-					// long rowID = Long.parseLong(uriSubParts[3]);
-					// populateFields(rowID);
 					videoGridFragment.updateThumbnails(this);
 				}
 			}

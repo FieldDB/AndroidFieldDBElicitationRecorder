@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore.Video.Thumbnails;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +43,7 @@ public class VideoGridFragment extends Fragment {
 			currentRowId = extras != null ? extras
 					.getLong(DatumsDbAdapter.KEY_ROWID) : null;
 		}
-
+		
 		carouselLayout = (LinearLayout) view
 				.findViewById(R.id.thumbnailCarousel);
 		updateThumbnails(view.getContext());
