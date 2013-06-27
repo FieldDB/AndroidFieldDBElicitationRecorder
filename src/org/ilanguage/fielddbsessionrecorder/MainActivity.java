@@ -251,13 +251,4 @@ public class MainActivity extends FragmentActivity implements PublicInterface {
 			detailFragment.populateFieldsInFragment(rowID);
 		}
 	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		if (uriToString != null) {
-			outState.putSerializable(DatumsDbAdapter.KEY_ROWID, rowID);
-			outState.putString("mainVideoTag", uriToString);
-		}
-	}
 }
