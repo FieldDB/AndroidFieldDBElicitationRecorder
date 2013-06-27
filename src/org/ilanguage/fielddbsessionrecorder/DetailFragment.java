@@ -7,7 +7,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,7 +79,9 @@ public class DetailFragment extends Fragment {
 				mCallback.updateThumbnails();
 			}
 		});
-		if (savedInstanceState != null) {
+		if (savedInstanceState != null
+				&& savedInstanceState
+						.getSerializable(DatumsDbAdapter.KEY_ROWID) != null) {
 			Serializable result = savedInstanceState
 					.getSerializable(DatumsDbAdapter.KEY_ROWID);
 			Long lastRowId = (Long) result;
@@ -149,22 +150,24 @@ public class DetailFragment extends Fragment {
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		mRowId = Long.parseLong(mRow_IDText.getText().toString());
-		saveState();
-		outState.putSerializable(DatumsDbAdapter.KEY_ROWID, mRowId);
+		if (!(mRow_IDText.getText().toString()).isEmpty()) {
+			mRowId = Long.parseLong(mRow_IDText.getText().toString());
+			saveState();
+			outState.putSerializable(DatumsDbAdapter.KEY_ROWID, mRowId);
+		}
 	}
 
-//	@Override
-//	public void onPause() {
-//		super.onPause();
-//		mRowId = Long.parseLong(mRow_IDText.getText().toString());
-//		saveState();
-//	}
-//
-//	@Override
-//	public void onResume() {
-//		super.onResume();
-//	}
+	// @Override
+	// public void onPause() {
+	// super.onPause();
+	// mRowId = Long.parseLong(mRow_IDText.getText().toString());
+	// saveState();
+	// }
+	//
+	// @Override
+	// public void onResume() {
+	// super.onResume();
+	// }
 
 	private void saveState() {
 		// mRowId = Long.parseLong(mRow_IDText.getText().toString());
@@ -174,7 +177,7 @@ public class DetailFragment extends Fragment {
 		String field3 = mField3Text.getText().toString();
 		String field4 = mField4Text.getText().toString();
 		String field5 = mField5Text.getText().toString();
-		
+
 		if (mRowId == null) {
 			long id = mDbHelper.createNote(couch_id, field1, field2, field3,
 					field4, field5);

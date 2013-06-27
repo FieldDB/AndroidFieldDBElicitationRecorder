@@ -32,7 +32,7 @@ public class DetailActivity extends Activity {
 			finish();
 			return;
 		}
-		setContentView(R.layout.activity_detail);
+		setContentView(R.layout.activity_list);
 
 //		LinearLayout videoContainer = (LinearLayout) findViewById(R.id.IVDisplayContainer);
 //		videoContainer.setVisibility(LinearLayout.GONE);

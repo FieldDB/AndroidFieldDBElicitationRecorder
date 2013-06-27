@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,6 +34,9 @@ public class MainActivity extends FragmentActivity implements PublicInterface {
 
 	// private EditText mCouch_IDText;
 	private EditText mRow_IDText;
+	// TEST
+	String uriToString;
+	long rowID;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,19 +45,8 @@ public class MainActivity extends FragmentActivity implements PublicInterface {
 				"FieldDBSessions");
 		videosFolder.mkdir();
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.activity_main);
-		
-		if (savedInstanceState == null) {
-			Log.v("TEST", "savedInstanceState is null.");
-		} else {
-			Log.v("TEST", "savedInstanceState is NOT null.");
-		}
-		
-		
-		//TODO Fix portrait mode.
-		
-		
+
 		// Get fragments
 		detailFragment = (DetailFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.detailFragment);
@@ -64,7 +55,6 @@ public class MainActivity extends FragmentActivity implements PublicInterface {
 		listFragment = (ListFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.listFragment);
 
-		// populateFields(test);
 		mDbHelper = new DatumsDbAdapter(this);
 
 		if (detailFragment != null && detailFragment.isInLayout()) {
@@ -77,16 +67,11 @@ public class MainActivity extends FragmentActivity implements PublicInterface {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
-		if (listFragment != null && listFragment.isInLayout()) {
 			super.onCreateOptionsMenu(menu);
 			menu.add(0, NEW_SESSION_ID, 0, R.string.menu_new_session);
 			menu.add(0, NEW_VIDEO_ID, 0, R.string.menu_new_video);
 			menu.add(0, SETTINGS_ID, 0, R.string.menu_settings);
 			return true;
-		} else {
-			return true;
-		}
-
 	}
 
 	@Override
@@ -125,8 +110,21 @@ public class MainActivity extends FragmentActivity implements PublicInterface {
 	}
 
 	private void goToSettings() {
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+		alert.setTitle(R.string.notification);
+
+		alert.setMessage(R.string.coming_soon);
+
+		alert.setPositiveButton(R.string.ok,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						dialog.cancel();
+					}
+				});
+		AlertDialog alertDialog = alert.create();
+		alertDialog.show();
 		return;
-	}
+		}
 
 	public void onClickCamera() {
 		Intent cameraIntent = new Intent(
@@ -170,7 +168,7 @@ public class MainActivity extends FragmentActivity implements PublicInterface {
 					Uri mVideoUri = data.getData();
 					vid.setVideoURI(mVideoUri);
 
-					String uriToString = mVideoUri.toString();
+					uriToString = mVideoUri.toString();
 					String[] uriParts = uriToString.split("\\.");
 					String[] uriSubParts = uriParts[0].split("_");
 					// long videoID = Long.parseLong(uriSubParts[2]);
@@ -203,16 +201,16 @@ public class MainActivity extends FragmentActivity implements PublicInterface {
 	// PublicInterface methods
 	@Override
 	public void onVideoSelect(View v) {
-		String uriToString = v.getTag().toString();
+		uriToString = v.getTag().toString();
 		String[] uriParts = uriToString.split("\\.");
 		String[] uriSubParts = uriParts[0].split("_");
 		// long videoID = Long.parseLong(uriSubParts[2]);
-		long rowID = Long.parseLong(uriSubParts[3]);
+		rowID = Long.parseLong(uriSubParts[3]);
 
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
 			updateSessionInfo();
 		} else {
-			setContentView(R.layout.activity_detail);
+			setContentView(R.layout.activity_list);
 
 		}
 		if (videoFragment == null) {
@@ -251,6 +249,15 @@ public class MainActivity extends FragmentActivity implements PublicInterface {
 	private void populateFields(Long rowID) {
 		if (detailFragment != null && detailFragment.isInLayout()) {
 			detailFragment.populateFieldsInFragment(rowID);
+		}
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (uriToString != null) {
+			outState.putSerializable(DatumsDbAdapter.KEY_ROWID, rowID);
+			outState.putString("mainVideoTag", uriToString);
 		}
 	}
 }

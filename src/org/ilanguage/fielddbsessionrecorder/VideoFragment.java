@@ -3,7 +3,6 @@ package org.ilanguage.fielddbsessionrecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +22,8 @@ public class VideoFragment extends Fragment {
 		Display = (VideoView) view.findViewById(R.id.IVDisplay);
 		mediaController = new MediaController(view.getContext());
 
-		if (savedInstanceState != null) {
+		if (savedInstanceState != null && savedInstanceState
+				.getString("videoTag") != null) {
 			String lastVideoFile = (String) savedInstanceState
 					.getString("videoTag");
 			setVideo(lastVideoFile);
@@ -46,7 +46,7 @@ public class VideoFragment extends Fragment {
 
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		if (!filename.isEmpty()) {
+		if (filename != null && !filename.isEmpty()) {
 			outState.putString("videoTag", filename);
 		}
 	}
