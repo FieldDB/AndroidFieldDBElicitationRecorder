@@ -3,7 +3,9 @@ package ca.ilanguage.fielddbsessionrecorder;
 import java.io.File;
 import java.util.ArrayList;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -18,6 +20,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -43,7 +46,7 @@ public class VideoGridFragment extends Fragment {
 			currentRowId = extras != null ? extras
 					.getLong(DatumsDbAdapter.KEY_ROWID) : null;
 		}
-		
+
 		carouselLayout = (LinearLayout) view
 				.findViewById(R.id.thumbnailCarousel);
 		updateThumbnails(view.getContext());
@@ -93,10 +96,44 @@ public class VideoGridFragment extends Fragment {
 			imageViewArray[i].setAdjustViewBounds(true);
 			imageViewArray[i].setImageBitmap(bmThumbnail);
 			imageViewArray[i].setTag(filePath);
+
+			imageViewArray[i].setOnLongClickListener(new OnLongClickListener() {
+
+				@Override
+				public boolean onLongClick(View v) {
+					final String filename = v.getTag().toString();
+					AlertDialog.Builder alert = new AlertDialog.Builder(v.getContext());
+					alert.setTitle(R.string.delete_video); // Set Alert dialog title here
+					alert.setMessage(R.string.dialog_verify_delete_video); // Message here
+
+					alert.setPositiveButton(R.string.delete_video,
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int whichButton) {
+									File file = new File(filename);
+									boolean deleted = file.delete();
+									updateThumbnails(getActivity());
+								}
+							});
+
+					alert.setNegativeButton(R.string.cancel,
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int whichButton) {
+									dialog.cancel();
+								}
+							});
+					AlertDialog alertDialog = alert.create();
+					alertDialog.show();
+					return true;
+				}
+			});
+
 			imageViewArray[i].setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					Intent playVideo = new Intent(getActivity(), PlayVideo.class);
+					Intent playVideo = new Intent(getActivity(),
+							PlayVideo.class);
 					playVideo.putExtra("videoFilename", v.getTag().toString());
 					startActivity(playVideo);
 				}
