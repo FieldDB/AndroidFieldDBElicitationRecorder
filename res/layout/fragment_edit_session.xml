@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:isScrollContainer="true"
+    android:overScrollMode="always"
+    android:scrollbarAlwaysDrawVerticalTrack="true"
+    android:scrollbarStyle="outsideInset"
+    android:scrollbars="vertical" >
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:shrinkColumns="*"
+        android:stretchColumns="*" >
+
+        <TableRow android:layout_width="match_parent" >
+
+            <EditText
+                android:id="@+id/row_id"
+                style="@style/EditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/custom_edit_text"
+                android:imeOptions="actionDone"
+                android:visibility="gone" />
+        </TableRow>
+
+        <TableRow android:layout_width="match_parent" >
+
+            <EditText
+                android:id="@+id/couch_id"
+                style="@style/EditText"
+                android:layout_width="match_parent"
+                android:background="@drawable/custom_edit_text"
+                android:imeOptions="actionDone"
+                android:visibility="gone" />
+        </TableRow>
+
+        <TableRow android:layout_width="match_parent" >
+
+            <TextView
+                style="@style/EditPageTextView"
+                android:layout_width="match_parent"
+                android:text="@string/field1" />
+        </TableRow>
+
+        <TableRow android:layout_width="match_parent" >
+
+            <EditText
+                android:id="@+id/field1"
+                style="@style/EditText"
+                android:layout_width="match_parent"
+                android:background="@drawable/custom_edit_text"
+                android:imeOptions="actionDone" />
+        </TableRow>
+
+        <TableRow android:layout_width="match_parent" >
+
+            <TextView
+                style="@style/EditPageTextView"
+                android:layout_width="match_parent"
+                android:text="@string/field2" />
+        </TableRow>
+
+        <TableRow android:layout_width="match_parent" >
+
+            <EditText
+                android:id="@+id/field2"
+                style="@style/EditText"
+                android:layout_width="match_parent"
+                android:background="@drawable/custom_edit_text"
+                android:imeOptions="actionDone" />
+        </TableRow>
+
+        <TableRow android:layout_width="match_parent" >
+
+            <TextView
+                style="@style/EditPageTextView"
+                android:layout_width="match_parent"
+                android:text="@string/field3" />
+        </TableRow>
+
+        <TableRow android:layout_width="match_parent" >
+
+            <EditText
+                android:id="@+id/field3"
+                style="@style/EditText"
+                android:layout_width="match_parent"
+                android:background="@drawable/custom_edit_text"
+                android:imeOptions="actionDone" />
+        </TableRow>
+
+        <TableRow android:layout_width="match_parent" >
+
+            <TextView
+                style="@style/EditPageTextView"
+                android:layout_width="match_parent"
+                android:text="@string/field4" />
+        </TableRow>
+
+        <TableRow android:layout_width="match_parent" >
+
+            <EditText
+                android:id="@+id/field4"
+                style="@style/EditText"
+                android:layout_width="match_parent"
+                android:background="@drawable/custom_edit_text"
+                android:imeOptions="actionDone" />
+        </TableRow>
+
+        <TableRow android:layout_width="match_parent" >
+
+            <TextView
+                style="@style/EditPageTextView"
+                android:layout_width="match_parent"
+                android:text="@string/field5" />
+        </TableRow>
+
+        <TableRow android:layout_width="match_parent" >
+
+            <EditText
+                android:id="@+id/field5"
+                style="@style/EditText"
+                android:layout_width="match_parent"
+                android:background="@drawable/custom_edit_text"
+                android:imeOptions="actionDone" />
+        </TableRow>
+
+        <TableRow android:layout_width="match_parent" >
+
+            <Button
+                android:id="@+id/confirm"
+                style="@style/Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/custom_edit_button"
+                android:text="@string/confirm" />
+        </TableRow>
+    </TableLayout>
+
+</ScrollView>

@@ -5,19 +5,19 @@
     android:orientation="vertical" >
 
     <fragment
-        android:id="@+id/detailFragment"
+        android:id="@+id/editSessionFragment"
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_weight="1"
-        class="org.ilanguage.fielddbsessionrecorder.DetailFragment" >
+        android:layout_weight="70"
+        class="ca.ilanguage.fielddbsessionrecorder.EditSessionFragment" >
     </fragment>
 
     <fragment
-        android:id="@+id/videoFragment"
+        android:id="@+id/videoGridFragment"
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_weight="1"
-        class="org.ilanguage.fielddbsessionrecorder.VideoFragment" >
+        android:layout_weight="30"
+        class="ca.ilanguage.fielddbsessionrecorder.VideoGridFragment" >
     </fragment>
 
 </LinearLayout>

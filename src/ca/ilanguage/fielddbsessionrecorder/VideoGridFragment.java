@@ -1,9 +1,10 @@
-package org.ilanguage.fielddbsessionrecorder;
+package ca.ilanguage.fielddbsessionrecorder;
 
 import java.io.File;
+import java.util.ArrayList;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -21,55 +22,64 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class ListFragment extends Fragment {
-	PublicInterface mCallback;
+public class VideoGridFragment extends Fragment {
 	private DatumsDbAdapter mDbHelper;
-
+	private Long currentRowId;
 	LinearLayout carouselLayout;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_session_overview,
-				container, false);
+		View view = inflater.inflate(R.layout.fragment_video_grid, container,
+				false);
+
+		currentRowId = (savedInstanceState == null || savedInstanceState
+				.getSerializable(DatumsDbAdapter.KEY_ROWID) == null) ? null
+				: (Long) savedInstanceState
+						.getSerializable(DatumsDbAdapter.KEY_ROWID);
+		if (currentRowId == null) {
+			Bundle extras = getActivity().getIntent().getExtras();
+			currentRowId = extras != null ? extras
+					.getLong(DatumsDbAdapter.KEY_ROWID) : null;
+		}
 
 		carouselLayout = (LinearLayout) view
 				.findViewById(R.id.thumbnailCarousel);
-		updateThumbnailsInFragment(view.getContext());
+		updateThumbnails(view.getContext());
+
 		return view;
 	}
 
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		if (activity instanceof PublicInterface) {
-			mCallback = (PublicInterface) activity;
-		} else {
-			throw new ClassCastException(activity.toString()
-					+ " must implemenet PublicInterface");
-		}
-	}
-
-	public void updateThumbnailsInFragment(Context c) {
+	public void updateThumbnails(Context c) {
 		mDbHelper = new DatumsDbAdapter(c);
 		mDbHelper.open();
 
 		File dir = Environment.getExternalStorageDirectory();
 		String SD_PATH = dir.getAbsolutePath() + "/FieldDBSessions";
 		File file = new File(SD_PATH);
-		File allThumbnails[] = file.listFiles();
-		ImageView[] imageViewArray = new ImageView[allThumbnails.length];
-		TextView[] textViewArray = new TextView[allThumbnails.length];
-		// LinearLayout carouselLayout = (LinearLayout) view
-		// .findViewById(R.id.thumbnailCarousel);
+		File allVideos[] = file.listFiles();
+		ArrayList<File> allThumbnails = new ArrayList<File>();
+
+		for (int j = 0; j < allVideos.length; j++) {
+			String filePath = allVideos[j].getPath();
+			String[] filePathParts = filePath.split("\\.");
+			String[] filePathSubParts = filePathParts[0].split("_");
+			Long rowID = Long.parseLong(filePathSubParts[3]);
+			if (rowID == currentRowId) {
+				allThumbnails.add(allVideos[j]);
+			}
+		}
+
+		ImageView[] imageViewArray = new ImageView[allThumbnails.size()];
+		TextView[] textViewArray = new TextView[allThumbnails.size()];
 		// Remove all thumbnails in view before updating
 		carouselLayout.removeAllViews();
 
-		for (int i = 0; i < allThumbnails.length; i++) {
-			String filePath = allThumbnails[i].getPath();
+		for (int i = 0; i < allThumbnails.size(); i++) {
+			String filePath = allThumbnails.get(i).getPath();
 			Bitmap bmThumbnail;
-			bmThumbnail = ThumbnailUtils.createVideoThumbnail(
-					allThumbnails[i].getPath(), Thumbnails.MINI_KIND);
+			bmThumbnail = ThumbnailUtils.createVideoThumbnail(allThumbnails
+					.get(i).getPath(), Thumbnails.MICRO_KIND);
 
 			imageViewArray[i] = new ImageView(c);
 			LinearLayout.LayoutParams image_lp = new LinearLayout.LayoutParams(
@@ -85,7 +95,9 @@ public class ListFragment extends Fragment {
 			imageViewArray[i].setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					mCallback.onVideoSelect(v);
+					Intent playVideo = new Intent(getActivity(), PlayVideo.class);
+					playVideo.putExtra("videoFilename", v.getTag().toString());
+					startActivity(playVideo);
 				}
 			});
 
@@ -128,12 +140,4 @@ public class ListFragment extends Fragment {
 			carouselLayout.addView(imageAndTextLinearLayout);
 		}
 	}
-
-	// public interface OnItemSelectedListener {
-	// public void onVideoSelect(View v);
-	// }
-
-	// public void updateVideo(View v) {
-	// listener.onVideoSelect(v);
-	// }
 }

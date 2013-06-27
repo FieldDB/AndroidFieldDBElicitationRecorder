@@ -1,4 +1,4 @@
-package org.ilanguage.fielddbsessionrecorder;
+package ca.ilanguage.fielddbsessionrecorder;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -183,5 +183,17 @@ public class DatumsDbAdapter {
 		args.put(KEY_FIELD5, field5);
 
 		return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
+	}
+	
+	/**
+	 * Return a Cursor over the list of all notes in the database
+	 * 
+	 * @return Cursor over all notes
+	 */
+	public Cursor fetchAllDatums() {
+
+		return mDb.query(DATABASE_TABLE, new String[] { KEY_ROWID, KEY_COUCH_ID, KEY_FIELD1,
+				KEY_FIELD2, KEY_FIELD3, KEY_FIELD4, KEY_FIELD5 },
+				null, null, null, null, KEY_ROWID + " DESC");
 	}
 }

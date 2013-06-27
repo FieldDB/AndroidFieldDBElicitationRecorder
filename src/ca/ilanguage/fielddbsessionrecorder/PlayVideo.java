@@ -1,41 +1,41 @@
-package org.ilanguage.fielddbsessionrecorder;
+package ca.ilanguage.fielddbsessionrecorder;
 
+import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.util.Log;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
-public class VideoFragment extends Fragment {
+public class PlayVideo extends Activity {
 	VideoView Display;
 	MediaController mediaController;
 	String filename;
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_session_video,
-				container, false);
-		Display = (VideoView) view.findViewById(R.id.IVDisplay);
-		mediaController = new MediaController(view.getContext());
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_play_video);
 
-		if (savedInstanceState != null && savedInstanceState
-				.getString("videoTag") != null) {
+		Display = (VideoView) findViewById(R.id.IVDisplay);
+		mediaController = new MediaController(this);
+
+		if (savedInstanceState != null
+				&& savedInstanceState.getString("videoTag") != null) {
 			String lastVideoFile = (String) savedInstanceState
 					.getString("videoTag");
-			setVideo(lastVideoFile);
+			filename = lastVideoFile;
+		} else {
+			filename = getIntent().getStringExtra("videoFilename");
 		}
+		setVideo(filename);
 
-		return view;
 	}
 
 	public void setVideo(String tag) {
 		filename = tag;
 		Uri vidUri = Uri.parse(tag);
-
+		Log.v("TEST", "tag in setVideo is " + filename);
 		mediaController.setAnchorView(Display);
 		Display.setMediaController(mediaController);
 		Display.setVideoURI(vidUri);
