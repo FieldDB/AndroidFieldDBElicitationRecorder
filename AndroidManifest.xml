@@ -27,7 +27,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SessionAccess" />
+        <activity
+            android:name=".SessionAccess"
+            android:windowSoftInputMode="stateUnchanged" />
         <activity android:name=".PlayVideo" />
     </application>
 
