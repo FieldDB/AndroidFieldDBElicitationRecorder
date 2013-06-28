@@ -19,6 +19,7 @@
     <string name="delete_video">Delete Video</string>
     <string name="dialog_verify_delete_video">Are you sure you want to delete this video?\nThis cannot be undone!</string>
         <string name="dialog_please_save">Please save session (click Confirm) before continuing.</string>
+            <string name="dialog_sql_error">Whoops! There was an error!\nThe app might not function correctly.\nYou may want to delete video files from the FieldDB folder on your device\'s SD Card.</string>
     <string name="cancel">Cancel</string>
     <string name="notification">Notification</string>
     <string name="saved">Saved</string>

@@ -3,6 +3,8 @@ package ca.ilanguage.fielddbsessionrecorder;
 import java.io.File;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -240,8 +242,19 @@ public class GalleryView extends Activity {
 		try {
 			populateVideoPreview();
 		} catch (Exception e) {
-			Log.v("TEST", "THERE WAS AN ERROR!");
+			AlertDialog.Builder alert = new AlertDialog.Builder(this);
+			alert.setTitle(R.string.notification);
+			alert.setMessage(R.string.dialog_sql_error);
+
+			alert.setPositiveButton(R.string.ok,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog,
+								int whichButton) {
+							dialog.cancel();
+						}
+					});
+			AlertDialog alertDialog = alert.create();
+			alertDialog.show();
 		}
 	}
-
 }
