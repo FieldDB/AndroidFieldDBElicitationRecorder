@@ -1,7 +1,12 @@
 package ca.ilanguage.fielddbsessionrecorder;
 
+import java.io.File;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,7 +48,20 @@ public class EditSessionFragment extends Fragment {
 
 			public void onClick(View view) {
 				saveState();
-				// finish();
+				
+				AlertDialog.Builder alert = new AlertDialog.Builder(view.getContext());
+				alert.setTitle(R.string.notification); 
+				alert.setMessage(R.string.saved);
+
+				alert.setPositiveButton(R.string.ok,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int whichButton) {
+								dialog.cancel();
+							}
+						});
+				AlertDialog alertDialog = alert.create();
+				alertDialog.show();
 			}
 		});
 

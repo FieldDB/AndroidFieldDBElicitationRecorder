@@ -82,8 +82,8 @@ public class SessionListView extends ListActivity {
 					.getMenuInfo();
 			final long row_id = info.id;
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
-			alert.setTitle(R.string.delete); // Set Alert dialog title here
-			alert.setMessage(R.string.dialog_verify_delete); // Message here
+			alert.setTitle(R.string.delete); 
+			alert.setMessage(R.string.dialog_verify_delete);
 
 			alert.setPositiveButton(R.string.delete,
 					new DialogInterface.OnClickListener() {
@@ -190,9 +190,9 @@ public class SessionListView extends ListActivity {
 			// check for odd or even to set alternate colors to the row
 			// background
 			if (position % 2 == 0) {
-				view.setBackgroundColor(Color.rgb(157, 243, 245));
+				view.setBackgroundColor(Color.parseColor("#DEDEDE"));
 			} else {
-				view.setBackgroundColor(Color.rgb(205, 255, 255));
+				view.setBackgroundColor(Color.parseColor("#FFFFFF"));
 			}
 			return view;
 		}

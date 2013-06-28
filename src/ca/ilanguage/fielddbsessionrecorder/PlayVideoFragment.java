@@ -30,8 +30,6 @@ public class PlayVideoFragment extends Fragment {
 		} else {
 			filename = getActivity().getIntent().getStringExtra("videoFilename");
 		}
-		setVideo(filename);
-		
 		return view;
 	}
 	
@@ -51,5 +49,12 @@ public class PlayVideoFragment extends Fragment {
 		if (filename != null && !filename.isEmpty()) {
 			outState.putString("videoTag", filename);
 		}
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		// Play selected video on launch
+		setVideo(filename);
 	}
 }
