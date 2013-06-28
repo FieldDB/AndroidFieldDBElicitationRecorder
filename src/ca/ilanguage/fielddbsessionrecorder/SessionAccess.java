@@ -8,14 +8,15 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 
-public class SessionAccess extends FragmentActivity {
+public class SessionAccess extends FragmentActivity implements
+		VideoGridFragment.PublicInterface {
 	private static final int NEW_VIDEO_ID = Menu.FIRST;
-	private static final int CAMERA_VID_REQUEST = 1337;
 	private EditText mRow_IDText;
 	VideoGridFragment videoGridFragment;
 	private File videosFolder;
@@ -66,18 +67,22 @@ public class SessionAccess extends FragmentActivity {
 
 		cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uriSavedVideo);
 
-		startActivityForResult(cameraIntent, CAMERA_VID_REQUEST);
+		startActivity(cameraIntent);
 	}
 
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == CAMERA_VID_REQUEST) {
-			if (data.getData() != null) {
-				videoGridFragment = (VideoGridFragment) getSupportFragmentManager()
-						.findFragmentById(R.id.videoGridFragment);
-				if (videoGridFragment != null && videoGridFragment.isInLayout()) {
-					videoGridFragment.updateThumbnails(this);
-				}
-			}
+	// Hides or shows VideoGridFragment depending on whether there are video
+	// thumbnails to be displayed
+	public void hideVideoGridFragment(Boolean hide) {
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentTransaction fragmentTransaction = fragmentManager
+				.beginTransaction();
+		VideoGridFragment videoGridFragment = (VideoGridFragment) fragmentManager
+				.findFragmentById(R.id.videoGridFragment);
+		if (hide == true) {
+			fragmentTransaction.hide(videoGridFragment);
+		} else {
+			fragmentTransaction.show(videoGridFragment);
 		}
+		fragmentTransaction.commit();
 	}
 }

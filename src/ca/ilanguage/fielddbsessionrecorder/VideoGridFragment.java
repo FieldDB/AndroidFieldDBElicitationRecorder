@@ -49,7 +49,6 @@ public class VideoGridFragment extends Fragment {
 
 		carouselLayout = (LinearLayout) view
 				.findViewById(R.id.thumbnailCarousel);
-		updateThumbnails(view.getContext());
 
 		return view;
 	}
@@ -72,6 +71,13 @@ public class VideoGridFragment extends Fragment {
 			if (rowID == currentRowId) {
 				allThumbnails.add(allVideos[j]);
 			}
+		}
+
+		if (allThumbnails.size() < 1) {
+			((PublicInterface) this.getActivity()).hideVideoGridFragment(true);
+			return;
+		} else {
+			((PublicInterface) this.getActivity()).hideVideoGridFragment(false);
 		}
 
 		ImageView[] imageViewArray = new ImageView[allThumbnails.size()];
@@ -99,19 +105,21 @@ public class VideoGridFragment extends Fragment {
 
 			imageViewArray[i].setOnLongClickListener(new OnLongClickListener() {
 
+				// Delete video on long click
 				@Override
 				public boolean onLongClick(View v) {
 					final String filename = v.getTag().toString();
-					AlertDialog.Builder alert = new AlertDialog.Builder(v.getContext());
-					alert.setTitle(R.string.delete_video); // Set Alert dialog title here
-					alert.setMessage(R.string.dialog_verify_delete_video); // Message here
+					AlertDialog.Builder alert = new AlertDialog.Builder(v
+							.getContext());
+					alert.setTitle(R.string.delete_video);
+					alert.setMessage(R.string.dialog_verify_delete_video);
 
 					alert.setPositiveButton(R.string.delete_video,
 							new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog,
 										int whichButton) {
 									File file = new File(filename);
-									boolean deleted = file.delete();
+									file.delete();
 									updateThumbnails(getActivity());
 								}
 							});
@@ -129,6 +137,7 @@ public class VideoGridFragment extends Fragment {
 				}
 			});
 
+			// Play video in PlayVideo activity on normal click
 			imageViewArray[i].setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -177,5 +186,17 @@ public class VideoGridFragment extends Fragment {
 			// Add imageAndTextLinearLayout to view
 			carouselLayout.addView(imageAndTextLinearLayout);
 		}
+	}
+
+	public interface PublicInterface {
+		public void hideVideoGridFragment(Boolean hide);
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		// Calling updateThumbnails from here allows it to be called on initial
+		// create and after video intent resolution
+		updateThumbnails(getActivity());
 	}
 }

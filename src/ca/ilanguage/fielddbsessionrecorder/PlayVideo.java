@@ -35,7 +35,6 @@ public class PlayVideo extends Activity {
 	public void setVideo(String tag) {
 		filename = tag;
 		Uri vidUri = Uri.parse(tag);
-		Log.v("TEST", "tag in setVideo is " + filename);
 		mediaController.setAnchorView(Display);
 		Display.setMediaController(mediaController);
 		Display.setVideoURI(vidUri);
