@@ -15,10 +15,10 @@ import android.view.MenuItem;
 import android.widget.EditText;
 
 public class SessionAccess extends FragmentActivity implements
-		VideoGridFragment.PublicInterface {
+		VideoThumbnailFragment.PublicInterface {
 	private static final int NEW_VIDEO_ID = Menu.FIRST;
 	private EditText mRow_IDText;
-	VideoGridFragment videoGridFragment;
+	VideoThumbnailFragment videoGridFragment;
 	private File videosFolder;
 	String rowID;
 
@@ -76,7 +76,7 @@ public class SessionAccess extends FragmentActivity implements
 		FragmentManager fragmentManager = getSupportFragmentManager();
 		FragmentTransaction fragmentTransaction = fragmentManager
 				.beginTransaction();
-		VideoGridFragment videoGridFragment = (VideoGridFragment) fragmentManager
+		VideoThumbnailFragment videoGridFragment = (VideoThumbnailFragment) fragmentManager
 				.findFragmentById(R.id.videoGridFragment);
 		if (hide == true) {
 			fragmentTransaction.hide(videoGridFragment);
