@@ -5,6 +5,8 @@
     <string name="action_settings">Settings</string>
     <string name="record_video">Record</string>
     <string name="show_hide">Show/Hide</string>
+    <string name="menu_view_session_list">View Session List</string>
+    <string name="menu_view_video_gallery">View Video Gallery</string>
     <string name="menu_settings">Settings</string>
     <string name="menu_select_session">Select Session</string>
     <string name="menu_new_session">New Session</string>

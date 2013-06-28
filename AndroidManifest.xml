@@ -18,8 +18,10 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        <activity android:name="ca.ilanguage.fielddbsessionrecorder.SessionListView" >
+        </activity>
         <activity
-            android:name="ca.ilanguage.fielddbsessionrecorder.MainSessionRecorderActivity"
+            android:name=".GalleryView"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

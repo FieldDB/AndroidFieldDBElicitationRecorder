@@ -1,0 +1,197 @@
+package ca.ilanguage.fielddbsessionrecorder;
+
+import java.io.File;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff.Mode;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.media.ThumbnailUtils;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore.Video.Thumbnails;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
+import android.widget.TextView;
+
+public class GalleryView extends Activity {
+	File videosFolder;
+	private DatumsDbAdapter mDbHelper;
+	LinearLayout carouselLayout;
+	private static final int SESSION_LIST_VIEW_ID = Menu.FIRST;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_gallery);
+
+		// Create video folder if it does not already exist
+		videosFolder = new File(Environment.getExternalStorageDirectory(),
+				"FieldDBSessions");
+		videosFolder.mkdir();
+		carouselLayout = (LinearLayout) findViewById(R.id.videoPreviewCarousel);
+		populateVideoPreview(this);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		menu.add(0, SESSION_LIST_VIEW_ID, 0, R.string.menu_view_session_list);
+		return true;
+	}
+
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		switch (item.getItemId()) {
+		case SESSION_LIST_VIEW_ID:
+			showSessionList();
+			return true;
+		}
+		return super.onMenuItemSelected(featureId, item);
+	}
+
+	public void showSessionList() {
+		Intent i = new Intent(this, SessionListView.class);
+		startActivity(i);
+	}
+
+	public void populateVideoPreview(Context c) {
+		mDbHelper = new DatumsDbAdapter(c);
+		mDbHelper.open();
+
+		File dir = Environment.getExternalStorageDirectory();
+		String SD_PATH = dir.getAbsolutePath() + "/FieldDBSessions";
+		File file = new File(SD_PATH);
+		File allVideos[] = file.listFiles();
+
+		ImageView[] imageViewArray = new ImageView[allVideos.length];
+		TextView[] textViewArray = new TextView[allVideos.length];
+		// Remove all images in view before updating
+		carouselLayout.removeAllViews();
+
+		for (int i = 0; i < allVideos.length; i++) {
+			String filePath = allVideos[i].getPath();
+			Bitmap bmVideoPreview;
+			bmVideoPreview = ThumbnailUtils.createVideoThumbnail(
+					allVideos[i].getPath(), Thumbnails.FULL_SCREEN_KIND);
+			String[] filePathParts = filePath.split("\\.");
+			String[] filePathSubParts = filePathParts[0].split("_");
+			Long rowID = Long.parseLong(filePathSubParts[3]);
+
+			// Get goal for image label
+			Cursor note = mDbHelper.fetchNote(rowID);
+
+			String tempGoal = note.getString(note
+					.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD1));
+
+			String goal;
+			if (tempGoal.length() > 16) {
+				goal = tempGoal.substring(0, 15).concat("...");
+			} else {
+				goal = tempGoal;
+			}
+
+			String tempDate = note.getString(note
+					.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD5));
+
+			// TODO Format date
+			String imageLabelText = goal.concat("\n").concat(tempDate);
+
+			imageViewArray[i] = new ImageView(c);
+			textViewArray[i] = new TextView(c);
+
+			imageViewArray[i].setTag(filePath);
+
+			// Play video in PlayVideo activity on normal click
+			imageViewArray[i].setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Intent playVideo = new Intent(v.getContext(),
+							PlayVideo.class);
+					playVideo.putExtra("videoFilename", v.getTag().toString());
+					startActivity(playVideo);
+				}
+			});
+
+			// Set up layout parameters
+			RelativeLayout imageAndTextRelativeLayout = new RelativeLayout(c);
+			RelativeLayout.LayoutParams main_lp = new RelativeLayout.LayoutParams(
+					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			main_lp.addRule(RelativeLayout.CENTER_HORIZONTAL,
+					RelativeLayout.TRUE);
+			main_lp.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
+
+			main_lp.setMargins(50, 50, 50, 50);
+			imageAndTextRelativeLayout.setLayoutParams(main_lp);
+
+			imageViewArray[i].setLayoutParams(main_lp);
+
+			RelativeLayout.LayoutParams text_lp = new RelativeLayout.LayoutParams(
+					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			text_lp.addRule(RelativeLayout.CENTER_HORIZONTAL,
+					RelativeLayout.TRUE);
+			text_lp.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
+			text_lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,
+					RelativeLayout.TRUE);
+			textViewArray[i].setTextColor(Color.parseColor("#FFFFFF"));
+			textViewArray[i].setTypeface(Typeface.DEFAULT_BOLD);
+			textViewArray[i].setTextSize(35);
+			textViewArray[i].setShadowLayer(1.5f, -1, 1, Color.LTGRAY);
+			textViewArray[i].setLayoutParams(text_lp);
+
+			// Add data to elements
+			Bitmap roundedBitmap = getRoundedCornerBitmap(bmVideoPreview, 50);
+			imageViewArray[i].setImageBitmap(roundedBitmap);
+			Drawable d = getResources().getDrawable(R.drawable.image_border);
+			imageViewArray[i].setBackground(d);
+
+			textViewArray[i].setText(imageLabelText);
+
+			// Add individual items to relative layout container
+			imageAndTextRelativeLayout.addView(imageViewArray[i]);
+			imageAndTextRelativeLayout.addView(textViewArray[i]);
+
+			// Add imageAndTextLinearLayout container to linear layout in view
+			carouselLayout.addView(imageAndTextRelativeLayout);
+		}
+	}
+
+	public static Bitmap getRoundedCornerBitmap(Bitmap bitmap, int pixels) {
+		Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+				bitmap.getHeight(), Config.ARGB_8888);
+		Canvas canvas = new Canvas(output);
+
+		final int color = 0xff424242;
+		final Paint paint = new Paint();
+		final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+		final RectF rectF = new RectF(rect);
+		final float roundPx = pixels;
+
+		paint.setAntiAlias(true);
+		canvas.drawARGB(0, 0, 0, 0);
+		paint.setColor(color);
+		canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+
+		paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
+		canvas.drawBitmap(bitmap, rect, rect, paint);
+
+		return output;
+	}
+}
