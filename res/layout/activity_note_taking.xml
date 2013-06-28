@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:baselineAligned="false"
+    android:orientation="horizontal" >
+
+    <fragment
+        android:id="@+id/editSessionFragment"
+        android:layout_width="0dip"
+        android:layout_height="match_parent"
+        android:layout_weight="50"
+        class="ca.ilanguage.fielddbsessionrecorder.EditSessionFragment" >
+    </fragment>
+
+    <fragment
+        android:id="@+id/playVideoFragment"
+        android:layout_width="0dip"
+        android:layout_height="match_parent"
+        android:layout_weight="50"
+        class="ca.ilanguage.fielddbsessionrecorder.PlayVideoFragment" >
+    </fragment>
+
+</LinearLayout>

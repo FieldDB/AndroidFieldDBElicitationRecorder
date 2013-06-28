@@ -36,24 +36,28 @@ public class GalleryView extends Activity {
 	private DatumsDbAdapter mDbHelper;
 	LinearLayout carouselLayout;
 	private static final int SESSION_LIST_VIEW_ID = Menu.FIRST;
+	private static final int NEW_SESSION_ID = Menu.FIRST + 1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_gallery);
 
+		mDbHelper = new DatumsDbAdapter(this);
+		mDbHelper.open();
+		
 		// Create video folder if it does not already exist
 		videosFolder = new File(Environment.getExternalStorageDirectory(),
 				"FieldDBSessions");
 		videosFolder.mkdir();
 		carouselLayout = (LinearLayout) findViewById(R.id.videoPreviewCarousel);
-		populateVideoPreview(this);
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		menu.add(0, SESSION_LIST_VIEW_ID, 0, R.string.menu_view_session_list);
+		menu.add(0, NEW_SESSION_ID, 0, R.string.menu_new_session);
 		return true;
 	}
 
@@ -63,12 +67,22 @@ public class GalleryView extends Activity {
 		case SESSION_LIST_VIEW_ID:
 			showSessionList();
 			return true;
+		case NEW_SESSION_ID:
+			createNote();
+			return true;
 		}
 		return super.onMenuItemSelected(featureId, item);
 	}
 
 	public void showSessionList() {
 		Intent i = new Intent(this, SessionListView.class);
+		startActivity(i);
+	}
+
+	private void createNote() {
+		Long id = mDbHelper.createNote("", "", "", "", "", "");
+		Intent i = new Intent(this, SessionAccess.class);
+		i.putExtra(DatumsDbAdapter.KEY_ROWID, id);
 		startActivity(i);
 	}
 
@@ -123,10 +137,15 @@ public class GalleryView extends Activity {
 			imageViewArray[i].setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					Intent playVideo = new Intent(v.getContext(),
-							PlayVideo.class);
-					playVideo.putExtra("videoFilename", v.getTag().toString());
-					startActivity(playVideo);
+					Intent takeNotes = new Intent(v.getContext(),
+							NoteTaking.class);
+					String[] filePathParts = v.getTag().toString().split("\\.");
+					String[] filePathSubParts = filePathParts[0].split("_");
+					Long rowID = Long.parseLong(filePathSubParts[3]);
+
+					takeNotes.putExtra("videoFilename", v.getTag().toString());
+					takeNotes.putExtra(DatumsDbAdapter.KEY_ROWID, rowID);
+					startActivity(takeNotes);
 				}
 			});
 
@@ -194,4 +213,11 @@ public class GalleryView extends Activity {
 
 		return output;
 	}
+	@Override
+	public void onResume() {
+		super.onResume();
+		// Populate video preview list on load
+		populateVideoPreview(this);
+	}
+
 }

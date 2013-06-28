@@ -56,11 +56,11 @@ public class SessionListView extends ListActivity {
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
-		case NEW_SESSION_ID:
-			createNote();
-			return true;
 		case VIDEO_GALLERY_VIEW_ID:
 			showVideoGallery();
+			return true;
+		case NEW_SESSION_ID:
+			createNote();
 			return true;
 		}
 
@@ -197,11 +197,6 @@ public class SessionListView extends ListActivity {
 			return view;
 		}
 	}
-
-	// protected void onActivityResult(int requestCode, int resultCode, Intent
-	// data) {
-	// //intent results, for those that return something
-	// }
 
 	@Override
 	public void onResume() {
