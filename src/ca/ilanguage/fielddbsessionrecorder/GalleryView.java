@@ -87,9 +87,6 @@ public class GalleryView extends Activity {
 	}
 
 	public void populateVideoPreview() {
-		// mDbHelper = new DatumsDbAdapter(this);
-		// mDbHelper.open();
-
 		File dir = Environment.getExternalStorageDirectory();
 		String SD_PATH = dir.getAbsolutePath() + "/FieldDBSessions";
 		File file = new File(SD_PATH);
@@ -174,7 +171,7 @@ public class GalleryView extends Activity {
 						RelativeLayout.TRUE);
 				textViewArray[i].setTextColor(Color.parseColor("#FFFFFF"));
 				textViewArray[i].setTypeface(Typeface.DEFAULT_BOLD);
-				
+
 				// Variables set based on device size
 				Bitmap bmVideoPreview;
 				int radiusDegree;
@@ -240,7 +237,11 @@ public class GalleryView extends Activity {
 	public void onResume() {
 		super.onResume();
 		// Populate video preview list on load
-		populateVideoPreview();
+		try {
+			populateVideoPreview();
+		} catch (Exception e) {
+			Log.v("TEST", "THERE WAS AN ERROR!");
+		}
 	}
 
 }
