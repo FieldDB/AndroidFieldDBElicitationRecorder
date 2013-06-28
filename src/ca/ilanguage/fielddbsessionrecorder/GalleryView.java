@@ -3,7 +3,6 @@ package ca.ilanguage.fielddbsessionrecorder;
 import java.io.File;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -21,6 +20,7 @@ import android.media.ThumbnailUtils;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore.Video.Thumbnails;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,7 +45,7 @@ public class GalleryView extends Activity {
 
 		mDbHelper = new DatumsDbAdapter(this);
 		mDbHelper.open();
-		
+
 		// Create video folder if it does not already exist
 		videosFolder = new File(Environment.getExternalStorageDirectory(),
 				"FieldDBSessions");
@@ -86,109 +86,131 @@ public class GalleryView extends Activity {
 		startActivity(i);
 	}
 
-	public void populateVideoPreview(Context c) {
-		mDbHelper = new DatumsDbAdapter(c);
-		mDbHelper.open();
+	public void populateVideoPreview() {
+		// mDbHelper = new DatumsDbAdapter(this);
+		// mDbHelper.open();
 
 		File dir = Environment.getExternalStorageDirectory();
 		String SD_PATH = dir.getAbsolutePath() + "/FieldDBSessions";
 		File file = new File(SD_PATH);
 		File allVideos[] = file.listFiles();
+		if (allVideos.length > 0) {
 
-		ImageView[] imageViewArray = new ImageView[allVideos.length];
-		TextView[] textViewArray = new TextView[allVideos.length];
-		// Remove all images in view before updating
-		carouselLayout.removeAllViews();
+			ImageView[] imageViewArray = new ImageView[allVideos.length];
+			TextView[] textViewArray = new TextView[allVideos.length];
+			// Remove all images in view before updating
+			carouselLayout.removeAllViews();
 
-		for (int i = 0; i < allVideos.length; i++) {
-			String filePath = allVideos[i].getPath();
-			Bitmap bmVideoPreview;
-			bmVideoPreview = ThumbnailUtils.createVideoThumbnail(
-					allVideos[i].getPath(), Thumbnails.FULL_SCREEN_KIND);
-			String[] filePathParts = filePath.split("\\.");
-			String[] filePathSubParts = filePathParts[0].split("_");
-			Long rowID = Long.parseLong(filePathSubParts[3]);
+			// Check for device size to determine size of gallery images
+			boolean tabletSize = getResources().getBoolean(R.bool.isTablet);
+			for (int i = 0; i < allVideos.length; i++) {
+				String filePath = allVideos[i].getPath();
+				String[] filePathParts = filePath.split("\\.");
+				String[] filePathSubParts = filePathParts[0].split("_");
+				Long rowID = Long.parseLong(filePathSubParts[3]);
 
-			// Get goal for image label
-			Cursor note = mDbHelper.fetchNote(rowID);
+				// Get goal for image label
+				Cursor note = mDbHelper.fetchNote(rowID);
 
-			String tempGoal = note.getString(note
-					.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD1));
+				String tempGoal = note.getString(note
+						.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD1));
 
-			String goal;
-			if (tempGoal.length() > 16) {
-				goal = tempGoal.substring(0, 15).concat("...");
-			} else {
-				goal = tempGoal;
-			}
-
-			String tempDate = note.getString(note
-					.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD5));
-
-			// TODO Format date
-			String imageLabelText = goal.concat("\n").concat(tempDate);
-
-			imageViewArray[i] = new ImageView(c);
-			textViewArray[i] = new TextView(c);
-
-			imageViewArray[i].setTag(filePath);
-
-			// Play video in PlayVideo activity on normal click
-			imageViewArray[i].setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					Intent takeNotes = new Intent(v.getContext(),
-							NoteTaking.class);
-					String[] filePathParts = v.getTag().toString().split("\\.");
-					String[] filePathSubParts = filePathParts[0].split("_");
-					Long rowID = Long.parseLong(filePathSubParts[3]);
-
-					takeNotes.putExtra("videoFilename", v.getTag().toString());
-					takeNotes.putExtra(DatumsDbAdapter.KEY_ROWID, rowID);
-					startActivity(takeNotes);
+				String goal;
+				if (tempGoal.length() > 16) {
+					goal = tempGoal.substring(0, 15).concat("...");
+				} else {
+					goal = tempGoal;
 				}
-			});
 
-			// Set up layout parameters
-			RelativeLayout imageAndTextRelativeLayout = new RelativeLayout(c);
-			RelativeLayout.LayoutParams main_lp = new RelativeLayout.LayoutParams(
-					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-			main_lp.addRule(RelativeLayout.CENTER_HORIZONTAL,
-					RelativeLayout.TRUE);
-			main_lp.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
+				String tempDate = note.getString(note
+						.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD5));
 
-			main_lp.setMargins(50, 50, 50, 50);
-			imageAndTextRelativeLayout.setLayoutParams(main_lp);
+				// TODO Format date
+				String imageLabelText = goal.concat("\n").concat(tempDate);
 
-			imageViewArray[i].setLayoutParams(main_lp);
+				imageViewArray[i] = new ImageView(this);
+				textViewArray[i] = new TextView(this);
 
-			RelativeLayout.LayoutParams text_lp = new RelativeLayout.LayoutParams(
-					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-			text_lp.addRule(RelativeLayout.CENTER_HORIZONTAL,
-					RelativeLayout.TRUE);
-			text_lp.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
-			text_lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,
-					RelativeLayout.TRUE);
-			textViewArray[i].setTextColor(Color.parseColor("#FFFFFF"));
-			textViewArray[i].setTypeface(Typeface.DEFAULT_BOLD);
-			textViewArray[i].setTextSize(35);
-			textViewArray[i].setShadowLayer(1.5f, -1, 1, Color.LTGRAY);
-			textViewArray[i].setLayoutParams(text_lp);
+				imageViewArray[i].setTag(filePath);
 
-			// Add data to elements
-			Bitmap roundedBitmap = getRoundedCornerBitmap(bmVideoPreview, 50);
-			imageViewArray[i].setImageBitmap(roundedBitmap);
-			Drawable d = getResources().getDrawable(R.drawable.image_border);
-			imageViewArray[i].setBackground(d);
+				// Play video in PlayVideo activity on normal click
+				imageViewArray[i].setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						Intent takeNotes = new Intent(v.getContext(),
+								NoteTaking.class);
+						String[] filePathParts = v.getTag().toString()
+								.split("\\.");
+						String[] filePathSubParts = filePathParts[0].split("_");
+						Long rowID = Long.parseLong(filePathSubParts[3]);
 
-			textViewArray[i].setText(imageLabelText);
+						takeNotes.putExtra("videoFilename", v.getTag()
+								.toString());
+						takeNotes.putExtra(DatumsDbAdapter.KEY_ROWID, rowID);
+						startActivity(takeNotes);
+					}
+				});
 
-			// Add individual items to relative layout container
-			imageAndTextRelativeLayout.addView(imageViewArray[i]);
-			imageAndTextRelativeLayout.addView(textViewArray[i]);
+				// Set up layout parameters
+				RelativeLayout imageAndTextRelativeLayout = new RelativeLayout(
+						this);
+				RelativeLayout.LayoutParams main_lp = new RelativeLayout.LayoutParams(
+						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+				main_lp.addRule(RelativeLayout.CENTER_HORIZONTAL,
+						RelativeLayout.TRUE);
+				main_lp.addRule(RelativeLayout.CENTER_VERTICAL,
+						RelativeLayout.TRUE);
 
-			// Add imageAndTextLinearLayout container to linear layout in view
-			carouselLayout.addView(imageAndTextRelativeLayout);
+				main_lp.setMargins(20, 20, 20, 20);
+				imageAndTextRelativeLayout.setLayoutParams(main_lp);
+
+				imageViewArray[i].setLayoutParams(main_lp);
+
+				RelativeLayout.LayoutParams text_lp = new RelativeLayout.LayoutParams(
+						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+				text_lp.addRule(RelativeLayout.CENTER_HORIZONTAL,
+						RelativeLayout.TRUE);
+				text_lp.addRule(RelativeLayout.CENTER_VERTICAL,
+						RelativeLayout.TRUE);
+				textViewArray[i].setTextColor(Color.parseColor("#FFFFFF"));
+				textViewArray[i].setTypeface(Typeface.DEFAULT_BOLD);
+				
+				// Variables set based on device size
+				Bitmap bmVideoPreview;
+				int radiusDegree;
+				if (tabletSize) {
+					bmVideoPreview = ThumbnailUtils
+							.createVideoThumbnail(allVideos[i].getPath(),
+									Thumbnails.FULL_SCREEN_KIND);
+					textViewArray[i].setTextSize(35);
+					radiusDegree = 50;
+				} else {
+					textViewArray[i].setTextSize(20);
+					radiusDegree = 75;
+					bmVideoPreview = ThumbnailUtils.createVideoThumbnail(
+							allVideos[i].getPath(), Thumbnails.MINI_KIND);
+				}
+				textViewArray[i].setShadowLayer(1.5f, -1, 1, Color.LTGRAY);
+				textViewArray[i].setLayoutParams(text_lp);
+
+				// Add data to elements
+				Bitmap roundedBitmap = getRoundedCornerBitmap(bmVideoPreview,
+						radiusDegree);
+				imageViewArray[i].setImageBitmap(roundedBitmap);
+				Drawable d = getResources()
+						.getDrawable(R.drawable.image_border);
+				imageViewArray[i].setBackground(d);
+
+				textViewArray[i].setText(imageLabelText);
+
+				// Add individual items to relative layout container
+				imageAndTextRelativeLayout.addView(imageViewArray[i]);
+				imageAndTextRelativeLayout.addView(textViewArray[i]);
+
+				// Add imageAndTextLinearLayout container to linear layout in
+				// view
+				carouselLayout.addView(imageAndTextRelativeLayout);
+			}
 		}
 	}
 
@@ -213,11 +235,12 @@ public class GalleryView extends Activity {
 
 		return output;
 	}
+
 	@Override
 	public void onResume() {
 		super.onResume();
 		// Populate video preview list on load
-		populateVideoPreview(this);
+		populateVideoPreview();
 	}
 
 }

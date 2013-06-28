@@ -2,6 +2,8 @@ package ca.ilanguage.fielddbsessionrecorder;
 
 import java.io.File;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -84,6 +86,24 @@ public class NoteTaking extends FragmentActivity {
 	}
 
 	public void recordVideo() {
+		
+		if (rowID == null) {
+			AlertDialog.Builder alert = new AlertDialog.Builder(this);
+			alert.setTitle(R.string.notification); 
+			alert.setMessage(R.string.dialog_please_save);
+
+			alert.setPositiveButton(R.string.ok,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog,
+								int whichButton) {
+							dialog.cancel();
+						}
+					});
+			AlertDialog alertDialog = alert.create();
+			alertDialog.show();
+			return;
+		}
+		
 		Intent cameraIntent = new Intent(
 				android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
 

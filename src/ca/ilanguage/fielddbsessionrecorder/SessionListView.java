@@ -82,7 +82,7 @@ public class SessionListView extends ListActivity {
 					.getMenuInfo();
 			final long row_id = info.id;
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
-			alert.setTitle(R.string.delete); 
+			alert.setTitle(R.string.delete);
 			alert.setMessage(R.string.dialog_verify_delete);
 
 			alert.setPositiveButton(R.string.delete,
@@ -166,9 +166,18 @@ public class SessionListView extends ListActivity {
 		int[] to = new int[] { R.id.text1, R.id.text2, R.id.text3, R.id.text4,
 				R.id.text5 };
 
-		// Now create a simple cursor adapter and set it to display
-		MyCursorAdapter notes = new MyCursorAdapter(this,
-				R.layout.session_list_row, notesCursor, from, to, 0);
+		// Now create a simple cursor adapter and set it to display, layout
+		// depending on device size
+		// Check for device size to determine size of gallery images
+		boolean tabletSize = getResources().getBoolean(R.bool.isTablet);
+		MyCursorAdapter notes;
+		if (tabletSize == true) {
+			notes = new MyCursorAdapter(this,
+					R.layout.session_list_row, notesCursor, from, to, 0);
+		} else {
+			notes = new MyCursorAdapter(this,
+					R.layout.session_list_row_phones, notesCursor, from, to, 0);
+		}
 		setListAdapter(notes);
 
 	}

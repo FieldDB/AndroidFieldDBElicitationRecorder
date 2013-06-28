@@ -41,28 +41,13 @@
 
         <TableRow android:layout_width="match_parent" >
 
-            <TextView
-                style="@style/EditPageTextView"
-                android:layout_width="match_parent"
-                android:text="@string/field1" />
-        </TableRow>
-
-        <TableRow android:layout_width="match_parent" >
-
             <EditText
                 android:id="@+id/field1"
                 style="@style/EditText"
                 android:layout_width="match_parent"
                 android:background="@drawable/custom_edit_text"
+                android:hint="@string/field1"
                 android:imeOptions="actionDone" />
-        </TableRow>
-
-        <TableRow android:layout_width="match_parent" >
-
-            <TextView
-                style="@style/EditPageTextView"
-                android:layout_width="match_parent"
-                android:text="@string/field2" />
         </TableRow>
 
         <TableRow android:layout_width="match_parent" >
@@ -72,15 +57,8 @@
                 style="@style/EditText"
                 android:layout_width="match_parent"
                 android:background="@drawable/custom_edit_text"
+                android:hint="@string/field2"
                 android:imeOptions="actionDone" />
-        </TableRow>
-
-        <TableRow android:layout_width="match_parent" >
-
-            <TextView
-                style="@style/EditPageTextView"
-                android:layout_width="match_parent"
-                android:text="@string/field3" />
         </TableRow>
 
         <TableRow android:layout_width="match_parent" >
@@ -90,15 +68,8 @@
                 style="@style/EditText"
                 android:layout_width="match_parent"
                 android:background="@drawable/custom_edit_text"
+                android:hint="@string/field3"
                 android:imeOptions="actionDone" />
-        </TableRow>
-
-        <TableRow android:layout_width="match_parent" >
-
-            <TextView
-                style="@style/EditPageTextView"
-                android:layout_width="match_parent"
-                android:text="@string/field4" />
         </TableRow>
 
         <TableRow android:layout_width="match_parent" >
@@ -108,15 +79,8 @@
                 style="@style/EditText"
                 android:layout_width="match_parent"
                 android:background="@drawable/custom_edit_text"
+                android:hint="@string/field4"
                 android:imeOptions="actionDone" />
-        </TableRow>
-
-        <TableRow android:layout_width="match_parent" >
-
-            <TextView
-                style="@style/EditPageTextView"
-                android:layout_width="match_parent"
-                android:text="@string/field5" />
         </TableRow>
 
         <TableRow android:layout_width="match_parent" >
@@ -126,6 +90,7 @@
                 style="@style/EditText"
                 android:layout_width="match_parent"
                 android:background="@drawable/custom_edit_text"
+                android:hint="@string/field5"
                 android:imeOptions="actionDone" />
         </TableRow>
 
