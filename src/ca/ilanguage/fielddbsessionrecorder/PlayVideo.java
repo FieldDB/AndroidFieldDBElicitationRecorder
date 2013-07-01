@@ -1,8 +1,11 @@
 package ca.ilanguage.fielddbsessionrecorder;
 
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
@@ -33,7 +36,26 @@ public class PlayVideo extends Activity {
 
 	public void setVideo(String tag) {
 		filename = tag;
-		Uri vidUri = Uri.parse(tag);
+		// Find video file in MediaStore
+		ContentResolver cr = getContentResolver();
+		Uri videosUri = MediaStore.Video.Media.getContentUri("external");
+		String[] projection = { MediaStore.Video.VideoColumns.DATA };
+		Cursor cursor;
+		try {
+			cursor = cr.query(videosUri, projection,
+					MediaStore.Video.VideoColumns.TITLE + " LIKE ?",
+					new String[] { filename }, null);
+
+			cursor.moveToFirst();
+		} catch (Exception e) {
+			return;
+		}
+		int columnIndex = cursor.getColumnIndex(projection[0]);
+		String videoId = cursor.getString(columnIndex);
+		cursor.close();
+
+		// Get Uri to video and set it to display
+		Uri vidUri = Uri.parse(videoId);
 		mediaController.setAnchorView(Display);
 		Display.setMediaController(mediaController);
 		Display.setVideoURI(vidUri);

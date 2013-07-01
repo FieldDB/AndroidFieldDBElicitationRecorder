@@ -4,6 +4,7 @@ import java.io.File;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -18,10 +19,10 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.media.ThumbnailUtils;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore.Video.Thumbnails;
+import android.provider.BaseColumns;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -89,128 +90,138 @@ public class GalleryView extends Activity {
 	}
 
 	public void populateVideoPreview() {
-		File dir = Environment.getExternalStorageDirectory();
-		String SD_PATH = dir.getAbsolutePath() + "/FieldDBSessions";
-		File file = new File(SD_PATH);
-		File allVideos[] = file.listFiles();
-		if (allVideos.length > 0) {
 
-			ImageView[] imageViewArray = new ImageView[allVideos.length];
-			TextView[] textViewArray = new TextView[allVideos.length];
-			// Remove all images in view before updating
+		// Query for all videos on external storage
+		ContentResolver cr = getContentResolver();
+		String[] proj = { BaseColumns._ID, MediaStore.Video.Media.TITLE };
+
+		Cursor c = cr.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, proj,
+				null, null, null);
+		if (c.moveToFirst()) {
 			carouselLayout.removeAllViews();
+			do {
+				int id = c.getInt(0);
+				int videoTitleIndex = c
+						.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE);
+				String videoTitle = c.getString(videoTitleIndex);
+				String[] videoTitleParts = videoTitle.split("[.]");
+				String[] videoTitleSubParts = videoTitleParts[0].split("_");
 
-			// Check for device size to determine size of gallery images
-			boolean tabletSize = getResources().getBoolean(R.bool.isTablet);
-			for (int i = 0; i < allVideos.length; i++) {
-				String filePath = allVideos[i].getPath();
-				String[] filePathParts = filePath.split("\\.");
-				String[] filePathSubParts = filePathParts[0].split("_");
-				Long rowID = Long.parseLong(filePathSubParts[3]);
+				if (videoTitleSubParts[0].equals("fielddb")) {
+					// Get SQL session id (row id)
+					Long rowID = Long.parseLong(videoTitleSubParts[3]);
 
-				// Get goal for image label
-				Cursor note = mDbHelper.fetchNote(rowID);
+					Bitmap b;
 
-				String tempGoal = note.getString(note
-						.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD1));
+					b = MediaStore.Video.Thumbnails.getThumbnail(cr, id,
+							MediaStore.Video.Thumbnails.MINI_KIND, null);
 
-				String goal;
-				if (tempGoal.length() > 16) {
-					goal = tempGoal.substring(0, 15).concat("...");
-				} else {
-					goal = tempGoal;
-				}
+					ImageView thumbnail = new ImageView(this);
 
-				String tempDate = note.getString(note
-						.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD5));
+					Bitmap roundedThumbnail = getRoundedCornerBitmap(b, 30);
+					thumbnail.setImageBitmap(roundedThumbnail);
 
-				// TODO Format date
-				String imageLabelText = goal.concat("\n").concat(tempDate);
+					Drawable d = getResources().getDrawable(
+							R.drawable.image_border);
+					thumbnail.setBackground(d);
 
-				imageViewArray[i] = new ImageView(this);
-				textViewArray[i] = new TextView(this);
+					thumbnail.setTag(videoTitle);
 
-				imageViewArray[i].setTag(filePath);
+					// Go to NoteTaking activity on normal click
+					thumbnail.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							Intent takeNotes = new Intent(v.getContext(),
+									NoteTaking.class);
+							String[] filePathParts = v.getTag().toString()
+									.split("[.]");
+							String[] filePathSubParts = filePathParts[0]
+									.split("_");
+							Long rowID = Long.parseLong(filePathSubParts[3]);
+							takeNotes.putExtra("videoFilename", v.getTag()
+									.toString());
+							takeNotes
+									.putExtra(DatumsDbAdapter.KEY_ROWID, rowID);
+							startActivity(takeNotes);
+						}
+					});
 
-				// Play video in PlayVideo activity on normal click
-				imageViewArray[i].setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						Intent takeNotes = new Intent(v.getContext(),
-								NoteTaking.class);
-						String[] filePathParts = v.getTag().toString()
-								.split("\\.");
-						String[] filePathSubParts = filePathParts[0].split("_");
-						Long rowID = Long.parseLong(filePathSubParts[3]);
+					TextView thumbnailLabel = new TextView(this);
 
-						takeNotes.putExtra("videoFilename", v.getTag()
-								.toString());
-						takeNotes.putExtra(DatumsDbAdapter.KEY_ROWID, rowID);
-						startActivity(takeNotes);
+
+					// Get goal for image label
+					Cursor note = mDbHelper.fetchNote(rowID);
+					String tempGoal;
+					String tempDate;
+					try {
+					tempGoal = note.getString(note
+							.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD1));
+					tempDate = note.getString(note
+							.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD5));
+					} catch (Exception e) {
+						Log.v("TEST", "No session record matching this video file.");
+						return;
 					}
-				});
+					String goal;
+					if (tempGoal.length() > 16) {
+						goal = tempGoal.substring(0, 15).concat("...");
+					} else {
+						goal = tempGoal;
+					}
 
-				// Set up layout parameters
-				RelativeLayout imageAndTextRelativeLayout = new RelativeLayout(
-						this);
-				RelativeLayout.LayoutParams main_lp = new RelativeLayout.LayoutParams(
-						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-				main_lp.addRule(RelativeLayout.CENTER_HORIZONTAL,
-						RelativeLayout.TRUE);
-				main_lp.addRule(RelativeLayout.CENTER_VERTICAL,
-						RelativeLayout.TRUE);
+					// TODO Format date
+					String imageLabelText = goal.concat("\n").concat(tempDate);
 
-				main_lp.setMargins(20, 20, 20, 20);
-				imageAndTextRelativeLayout.setLayoutParams(main_lp);
+					thumbnailLabel.setText(imageLabelText);
 
-				imageViewArray[i].setLayoutParams(main_lp);
+					// Set up layout parameters
+					RelativeLayout imageAndTextRelativeLayout = new RelativeLayout(
+							this);
+					RelativeLayout.LayoutParams main_lp = new RelativeLayout.LayoutParams(
+							LayoutParams.WRAP_CONTENT,
+							LayoutParams.WRAP_CONTENT);
+					main_lp.addRule(RelativeLayout.CENTER_HORIZONTAL,
+							RelativeLayout.TRUE);
+					main_lp.addRule(RelativeLayout.CENTER_VERTICAL,
+							RelativeLayout.TRUE);
 
-				RelativeLayout.LayoutParams text_lp = new RelativeLayout.LayoutParams(
-						LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-				text_lp.addRule(RelativeLayout.CENTER_HORIZONTAL,
-						RelativeLayout.TRUE);
-				text_lp.addRule(RelativeLayout.CENTER_VERTICAL,
-						RelativeLayout.TRUE);
-				textViewArray[i].setTextColor(Color.parseColor("#FFFFFF"));
-				textViewArray[i].setTypeface(Typeface.DEFAULT_BOLD);
+					main_lp.setMargins(20, 20, 20, 20);
+					imageAndTextRelativeLayout.setLayoutParams(main_lp);
 
-				// Variables set based on device size
-				Bitmap bmVideoPreview;
-				int radiusDegree;
-				if (tabletSize) {
-					bmVideoPreview = ThumbnailUtils
-							.createVideoThumbnail(allVideos[i].getPath(),
-									Thumbnails.FULL_SCREEN_KIND);
-					textViewArray[i].setTextSize(35);
-					radiusDegree = 50;
-				} else {
-					textViewArray[i].setTextSize(20);
-					radiusDegree = 75;
-					bmVideoPreview = ThumbnailUtils.createVideoThumbnail(
-							allVideos[i].getPath(), Thumbnails.MINI_KIND);
+					thumbnail.setLayoutParams(main_lp);
+
+					RelativeLayout.LayoutParams text_lp = new RelativeLayout.LayoutParams(
+							LayoutParams.WRAP_CONTENT,
+							LayoutParams.WRAP_CONTENT);
+					text_lp.addRule(RelativeLayout.CENTER_HORIZONTAL,
+							RelativeLayout.TRUE);
+					text_lp.addRule(RelativeLayout.CENTER_VERTICAL,
+							RelativeLayout.TRUE);
+					thumbnailLabel.setTextColor(Color.parseColor("#FFFFFF"));
+					thumbnailLabel.setTypeface(Typeface.DEFAULT_BOLD);
+
+					// Variables set based on device size
+					boolean tabletSize = getResources().getBoolean(
+							R.bool.isTablet);
+					if (tabletSize) {
+						thumbnailLabel.setTextSize(35);
+					} else {
+						thumbnailLabel.setTextSize(20);
+					}
+					thumbnailLabel.setShadowLayer(1.5f, -1, 1, Color.LTGRAY);
+					thumbnailLabel.setLayoutParams(text_lp);
+
+					// Add individual items to relative layout container
+					imageAndTextRelativeLayout.addView(thumbnail);
+					imageAndTextRelativeLayout.addView(thumbnailLabel);
+
+					// Add imageAndTextLinearLayout container to linear layout
+					// in view
+					carouselLayout.addView(imageAndTextRelativeLayout);
 				}
-				textViewArray[i].setShadowLayer(1.5f, -1, 1, Color.LTGRAY);
-				textViewArray[i].setLayoutParams(text_lp);
-
-				// Add data to elements
-				Bitmap roundedBitmap = getRoundedCornerBitmap(bmVideoPreview,
-						radiusDegree);
-				imageViewArray[i].setImageBitmap(roundedBitmap);
-				Drawable d = getResources()
-						.getDrawable(R.drawable.image_border);
-				imageViewArray[i].setBackground(d);
-
-				textViewArray[i].setText(imageLabelText);
-
-				// Add individual items to relative layout container
-				imageAndTextRelativeLayout.addView(imageViewArray[i]);
-				imageAndTextRelativeLayout.addView(textViewArray[i]);
-
-				// Add imageAndTextLinearLayout container to linear layout in
-				// view
-				carouselLayout.addView(imageAndTextRelativeLayout);
-			}
+			} while (c.moveToNext());
 		}
+		c.close();
 	}
 
 	public static Bitmap getRoundedCornerBitmap(Bitmap bitmap, int pixels) {

@@ -3,8 +3,11 @@ package ca.ilanguage.fielddbsessionrecorder;
 import java.io.File;
 
 import android.app.AlertDialog;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,10 +24,12 @@ public class SessionAccess extends FragmentActivity implements
 	private static final int VIDEO_GALLERY_VIEW_ID = Menu.FIRST;
 	private static final int SESSION_LIST_VIEW_ID = Menu.FIRST + 1;
 	private static final int NEW_VIDEO_ID = Menu.FIRST + 2;
+	private static final int RECORD_VIDEO = 0;
 	private EditText mRow_IDText;
 	VideoThumbnailFragment videoGridFragment;
 	private File videosFolder;
 	String rowID;
+	Uri cameraVideoURI;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +80,7 @@ public class SessionAccess extends FragmentActivity implements
 	}
 
 	public void recordVideo() {
+
 		if (rowID == null) {
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
 			alert.setTitle(R.string.notification);
@@ -92,20 +98,49 @@ public class SessionAccess extends FragmentActivity implements
 			return;
 		}
 
-		Intent cameraIntent = new Intent(
-				android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
-
 		String time = String.valueOf(System.currentTimeMillis());
 		String video_filename = "fielddb_session_" + time + "_" + rowID
 				+ ".mp4";
+		ContentValues values = new ContentValues();
+		values.put(MediaStore.Video.Media.TITLE, video_filename);
+		cameraVideoURI = getContentResolver().insert(
+				MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
 
-		File video = new File(videosFolder, video_filename);
+		Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraVideoURI);
+		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+		startActivityForResult(intent, RECORD_VIDEO);
 
-		Uri uriSavedVideo = Uri.fromFile(video);
+	}
 
-		cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uriSavedVideo);
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == RECORD_VIDEO && resultCode != 0
+				&& data.getData() != null) {
+			ContentResolver cr = getContentResolver();
 
-		startActivity(cameraIntent);
+			Cursor cursor;
+
+			String[] projection = { MediaStore.Video.Media.DATA,
+					MediaStore.Video.Media.SIZE, MediaStore.Video.Media.TITLE };
+			try {
+				cursor = cr.query(cameraVideoURI, projection, null, null, null);
+			} catch (Exception e) {
+				return;
+			}
+
+			int column_index_data = cursor
+					.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+			cursor.moveToFirst();
+			String recordedVideoFilePath = cursor.getString(column_index_data);
+			Uri fileUri = Uri.parse(recordedVideoFilePath);
+			cursor.close();
+			// Broadcast to media scanner that new file is present so that
+			// thumbnails will be updated
+			sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
+					fileUri));
+		}
 	}
 
 	// Hides or shows VideoGridFragment depending on whether there are video

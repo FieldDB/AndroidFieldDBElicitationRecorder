@@ -3,10 +3,10 @@
 
     <stroke
         android:width="5dp"
-        android:color="#EBDDE2" />
+        android:color="#FFFFFF" />
 
     <padding
-        android:bottom="5dp"
+        android:bottom="35dp"
         android:left="5dp"
         android:right="5dp"
         android:top="5dp" />
@@ -15,11 +15,5 @@
         android:centerColor="#FFFFFF"
         android:endColor="#FFFFFF"
         android:startColor="#FFFFFF" />
-
-    <corners
-        android:bottomLeftRadius="40dp"
-        android:bottomRightRadius="40dp"
-        android:topLeftRadius="40dp"
-        android:topRightRadius="40dp" />
 
 </shape>

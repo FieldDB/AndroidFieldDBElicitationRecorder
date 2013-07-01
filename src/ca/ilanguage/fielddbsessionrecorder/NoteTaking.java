@@ -3,8 +3,11 @@ package ca.ilanguage.fielddbsessionrecorder;
 import java.io.File;
 
 import android.app.AlertDialog;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -24,6 +27,7 @@ public class NoteTaking extends FragmentActivity {
 	private EditText mRow_IDText;
 	private File videosFolder;
 	String rowID;
+	Uri cameraVideoURI;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -86,10 +90,10 @@ public class NoteTaking extends FragmentActivity {
 	}
 
 	public void recordVideo() {
-		
+
 		if (rowID == null) {
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
-			alert.setTitle(R.string.notification); 
+			alert.setTitle(R.string.notification);
 			alert.setMessage(R.string.dialog_please_save);
 
 			alert.setPositiveButton(R.string.ok,
@@ -103,30 +107,59 @@ public class NoteTaking extends FragmentActivity {
 			alertDialog.show();
 			return;
 		}
-		
-		Intent cameraIntent = new Intent(
-				android.provider.MediaStore.ACTION_VIDEO_CAPTURE);
 
 		String time = String.valueOf(System.currentTimeMillis());
 		String video_filename = "fielddb_session_" + time + "_" + rowID
 				+ ".mp4";
+		ContentValues values = new ContentValues();
+		values.put(MediaStore.Video.Media.TITLE, video_filename);
+		cameraVideoURI = getContentResolver().insert(
+				MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
 
-		File video = new File(videosFolder, video_filename);
+		Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraVideoURI);
+		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+		startActivityForResult(intent, RECORD_VIDEO);
 
-		Uri uriSavedVideo = Uri.fromFile(video);
-
-		cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uriSavedVideo);
-
-		startActivityForResult(cameraIntent, RECORD_VIDEO);
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == RECORD_VIDEO && resultCode != 0 && data.getData() != null) {
-			PlayVideoFragment playVideoFragment = (PlayVideoFragment) getSupportFragmentManager().findFragmentById(R.id.playVideoFragment);
-			String filePath = data.getData().toString();
-			playVideoFragment.setVideo(filePath);
+		if (requestCode == RECORD_VIDEO && resultCode != 0
+				&& data.getData() != null) {
+
+			ContentResolver cr = getContentResolver();
+			
+			Cursor cursor;
+			
+			String[] projection = { MediaStore.Video.Media.DATA,
+					MediaStore.Video.Media.SIZE, MediaStore.Video.Media.TITLE };
+			
+			try {
+				cursor = cr.query(cameraVideoURI, projection, null,
+						null, null);
+			} catch (Exception e) {
+				return;
+			}
+			int column_index_data = cursor
+					.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+			int videoTitleIndex = cursor
+					.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE);
+			cursor.moveToFirst();
+			String videoTitle = cursor.getString(videoTitleIndex);
+			String recordedVideoFilePath = cursor.getString(column_index_data);
+			Uri fileUri = Uri.parse(recordedVideoFilePath);
+			cursor.close();
+
+			// Broadcast to media scanner that new file is present so that
+			// thumbnails will be updated
+			sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
+					fileUri));
+
+			PlayVideoFragment playVideoFragment = (PlayVideoFragment) getSupportFragmentManager()
+					.findFragmentById(R.id.playVideoFragment);
+			playVideoFragment.setVideo(videoTitle);
 		}
 	}
 

@@ -4,6 +4,7 @@ import java.io.File;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -90,28 +92,54 @@ public class SessionListView extends ListActivity {
 						public void onClick(DialogInterface dialog,
 								int whichButton) {
 							// Delete session and all videos from that session
-							File dir = Environment
-									.getExternalStorageDirectory();
-							String SD_PATH = dir.getAbsolutePath()
-									+ "/FieldDBSessions";
-							File file = new File(SD_PATH);
-							File allVideos[] = file.listFiles();
 
-							// Should be fine to iterate over array since not
-							// removing actual array items but rather deleting
-							// from SD card
-							for (int j = 0; j < allVideos.length; j++) {
-								String filePath = allVideos[j].getPath();
-								String[] filePathParts = filePath.split("\\.");
-								String[] filePathSubParts = filePathParts[0]
-										.split("_");
-								Long rowID = Long
-										.parseLong(filePathSubParts[3]);
-								if (rowID == row_id) {
-									File fileToDelete = new File(filePath);
-									fileToDelete.delete();
-								}
+							// Query for all videos on external storage
+							ContentResolver cr = getContentResolver();
+							String[] proj = { MediaStore.Video.Media._ID,
+									MediaStore.Video.Media.TITLE };
+
+							Cursor c = cr
+									.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+											proj, null, null, null);
+							if (c.moveToFirst()) {
+								do {
+									int videoId = c.getInt(0);
+									int videoTitleIndex = c
+											.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE);
+									String videoTitle = c
+											.getString(videoTitleIndex);
+									String[] videoTitleParts = videoTitle
+											.split("[.]");
+
+									String[] videoTitleSubParts = videoTitleParts[0]
+											.split("_");
+									if (videoTitleSubParts[0].equals("fielddb")) {
+										Long rowID = Long
+												.parseLong(videoTitleSubParts[3]);
+										if (rowID == row_id) {
+											// Delete video and thumbnail that
+											// matches session id
+											// Delete video and
+											// associated thumbnail
+											cr.delete(
+													MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+													MediaStore.Video.VideoColumns._ID
+															+ " = ?",
+													new String[] { "" + videoId });
+
+											cr.delete(
+													MediaStore.Video.Thumbnails.EXTERNAL_CONTENT_URI,
+													MediaStore.Video.Thumbnails.VIDEO_ID
+															+ " = ?",
+													new String[] { "" + videoId });
+
+										}
+									}
+								} while (c.moveToNext());
 							}
+							c.close();
+							
+							// Delete session
 							mDbHelper.deleteNote(row_id);
 							fillData();
 						}
@@ -172,11 +200,11 @@ public class SessionListView extends ListActivity {
 		boolean tabletSize = getResources().getBoolean(R.bool.isTablet);
 		MyCursorAdapter notes;
 		if (tabletSize == true) {
-			notes = new MyCursorAdapter(this,
-					R.layout.session_list_row, notesCursor, from, to, 0);
+			notes = new MyCursorAdapter(this, R.layout.session_list_row,
+					notesCursor, from, to, 0);
 		} else {
-			notes = new MyCursorAdapter(this,
-					R.layout.session_list_row_phones, notesCursor, from, to, 0);
+			notes = new MyCursorAdapter(this, R.layout.session_list_row_phones,
+					notesCursor, from, to, 0);
 		}
 		setListAdapter(notes);
 

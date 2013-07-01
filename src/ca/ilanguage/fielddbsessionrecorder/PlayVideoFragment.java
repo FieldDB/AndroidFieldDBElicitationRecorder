@@ -1,7 +1,10 @@
 package ca.ilanguage.fielddbsessionrecorder;
 
+import android.content.ContentResolver;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,24 +21,45 @@ public class PlayVideoFragment extends Fragment {
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.activity_play_video, container,
 				false);
-		
+
 		Display = (VideoView) view.findViewById(R.id.IVDisplay);
 		mediaController = new MediaController(view.getContext());
-		
+
 		if (savedInstanceState != null
 				&& savedInstanceState.getString("videoTag") != null) {
 			String lastVideoFile = (String) savedInstanceState
 					.getString("videoTag");
 			filename = lastVideoFile;
 		} else {
-			filename = getActivity().getIntent().getStringExtra("videoFilename");
+			filename = getActivity().getIntent()
+					.getStringExtra("videoFilename");
 		}
 		return view;
 	}
-	
+
 	public void setVideo(String tag) {
 		filename = tag;
-		Uri vidUri = Uri.parse(tag);
+
+		// Find video file in MediaStore
+		ContentResolver cr = getActivity().getContentResolver();
+		Uri videosUri = MediaStore.Video.Media.getContentUri("external");
+		String[] projection = { MediaStore.Video.VideoColumns.DATA };
+		Cursor cursor;
+		try {
+			cursor = cr.query(videosUri, projection,
+					MediaStore.Video.VideoColumns.TITLE + " LIKE ?",
+					new String[] { filename }, null);
+
+			cursor.moveToFirst();
+		} catch (Exception e) {
+			return;
+		}
+		int columnIndex = cursor.getColumnIndex(projection[0]);
+		String videoId = cursor.getString(columnIndex);
+		cursor.close();
+
+		// Get Uri to video and set it to display
+		Uri vidUri = Uri.parse(videoId);
 		mediaController.setAnchorView(Display);
 		Display.setMediaController(mediaController);
 		Display.setVideoURI(vidUri);
@@ -50,7 +74,7 @@ public class PlayVideoFragment extends Fragment {
 			outState.putString("videoTag", filename);
 		}
 	}
-	
+
 	@Override
 	public void onResume() {
 		super.onResume();
