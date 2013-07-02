@@ -3,9 +3,7 @@ package ca.ilanguage.fielddbsessionrecorder;
 import java.io.File;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ContentResolver;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -168,18 +166,18 @@ public class GalleryView extends Activity {
 					thumbnail.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							Intent takeNotes = new Intent(v.getContext(),
-									NoteTaking.class);
+							Intent accessSession = new Intent(v.getContext(),
+									SessionAccess.class);
 							String[] filePathParts = v.getTag().toString()
 									.split("[.]");
 							String[] filePathSubParts = filePathParts[0]
 									.split("_");
 							Long rowID = Long.parseLong(filePathSubParts[3]);
-							takeNotes.putExtra("videoFilename", v.getTag()
+							accessSession.putExtra("videoFilename", v.getTag()
 									.toString());
-							takeNotes
+							accessSession
 									.putExtra(DatumsDbAdapter.KEY_ROWID, rowID);
-							startActivity(takeNotes);
+							startActivity(accessSession);
 						}
 					});
 

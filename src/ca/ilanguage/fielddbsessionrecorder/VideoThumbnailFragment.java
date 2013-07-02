@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -58,7 +57,7 @@ public class VideoThumbnailFragment extends Fragment {
 				proj, null, null, null);
 
 		if (cursor.moveToFirst()) {
-			((PublicInterface) this.getActivity()).hideVideoGridFragment(false);
+//			((PublicInterface) this.getActivity()).hideVideoThumbnailFragment(false);
 			carouselLayout.removeAllViews();
 			do {
 				int id = cursor.getInt(0);
@@ -171,11 +170,15 @@ public class VideoThumbnailFragment extends Fragment {
 						thumbnail.setOnClickListener(new OnClickListener() {
 							@Override
 							public void onClick(View v) {
-								Intent playVideo = new Intent(getActivity(),
-										PlayVideo.class);
-								playVideo.putExtra("videoFilename", v.getTag()
-										.toString());
-								startActivity(playVideo);
+//								Intent playVideo = new Intent(getActivity(),
+//										PlayVideo.class);
+//								playVideo.putExtra("videoFilename", v.getTag()
+//										.toString());
+//								startActivity(playVideo);
+								PlayVideoFragment playVideoFragment = (PlayVideoFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.playVideoFragment);
+								String videoFilename = v.getTag().toString();
+								playVideoFragment.setVideo(videoFilename);
+								
 							}
 						});
 
@@ -183,15 +186,16 @@ public class VideoThumbnailFragment extends Fragment {
 					}
 				}
 			} while (cursor.moveToNext());
-		} else {
-			((PublicInterface) this.getActivity()).hideVideoGridFragment(true);
-		}
+		} 
+//		else {
+//			((PublicInterface) this.getActivity()).hideVideoThumbnailFragment(true);
+//		}
 		cursor.close();
 	}
 
-	public interface PublicInterface {
-		public void hideVideoGridFragment(Boolean hide);
-	}
+//	public interface PublicInterface {
+//		public void hideVideoThumbnailFragment(Boolean hide);
+//	}
 
 	@Override
 	public void onResume() {

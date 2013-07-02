@@ -34,7 +34,7 @@ public class SessionListView extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main_session_recorder);
+		setContentView(R.layout.activity_session_list);
 
 		// Create videos folder if not already present
 		videosFolder = new File(Environment.getExternalStorageDirectory(),

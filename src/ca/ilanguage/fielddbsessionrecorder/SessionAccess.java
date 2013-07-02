@@ -13,21 +13,19 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 
-public class SessionAccess extends FragmentActivity implements
-		VideoThumbnailFragment.PublicInterface {
+public class SessionAccess extends FragmentActivity
+//implements VideoThumbnailFragment.PublicInterface
+		{
 	private static final int VIDEO_GALLERY_VIEW_ID = Menu.FIRST;
 	private static final int SESSION_LIST_VIEW_ID = Menu.FIRST + 1;
 	private static final int NEW_VIDEO_ID = Menu.FIRST + 2;
 	private static final int RECORD_VIDEO = 0;
 	private EditText mRow_IDText;
-	VideoThumbnailFragment videoGridFragment;
+	VideoThumbnailFragment videoThumbnailFragment;
 	private File videosFolder;
 	String rowID;
 	Uri cameraVideoURI;
@@ -35,7 +33,7 @@ public class SessionAccess extends FragmentActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main_session_access);
+		setContentView(R.layout.activity_session_access);
 
 		mRow_IDText = (EditText) findViewById(R.id.row_id);
 		rowID = mRow_IDText.getText().toString();
@@ -146,19 +144,19 @@ public class SessionAccess extends FragmentActivity implements
 		}
 	}
 
-	// Hides or shows VideoGridFragment depending on whether there are video
+	// Hides or shows VideoThumbnailFragment depending on whether there are video
 	// thumbnails to be displayed
-	public void hideVideoGridFragment(Boolean hide) {
-		FragmentManager fragmentManager = getSupportFragmentManager();
-		FragmentTransaction fragmentTransaction = fragmentManager
-				.beginTransaction();
-		VideoThumbnailFragment videoGridFragment = (VideoThumbnailFragment) fragmentManager
-				.findFragmentById(R.id.videoGridFragment);
-		if (hide == true) {
-			fragmentTransaction.hide(videoGridFragment);
-		} else {
-			fragmentTransaction.show(videoGridFragment);
-		}
-		fragmentTransaction.commit();
-	}
+//	public void hideVideoThumbnailFragment(Boolean hide) {
+//		FragmentManager fragmentManager = getSupportFragmentManager();
+//		FragmentTransaction fragmentTransaction = fragmentManager
+//				.beginTransaction();
+//		VideoThumbnailFragment videoThumbnailFragment = (VideoThumbnailFragment) fragmentManager
+//				.findFragmentById(R.id.videoThumbnailFragment);
+//		if (hide == true) {
+//			fragmentTransaction.hide(videoThumbnailFragment);
+//		} else {
+//			fragmentTransaction.show(videoThumbnailFragment);
+//		}
+//		fragmentTransaction.commit();
+//	}
 }
