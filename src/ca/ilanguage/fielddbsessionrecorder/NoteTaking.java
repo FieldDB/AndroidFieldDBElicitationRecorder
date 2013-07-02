@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -91,6 +92,9 @@ public class NoteTaking extends FragmentActivity {
 
 	public void recordVideo() {
 
+		if (rowID.isEmpty()) {
+			rowID = mRow_IDText.getText().toString();
+		}
 		if (rowID == null) {
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
 			alert.setTitle(R.string.notification);
@@ -130,15 +134,14 @@ public class NoteTaking extends FragmentActivity {
 				&& data.getData() != null) {
 
 			ContentResolver cr = getContentResolver();
-			
+
 			Cursor cursor;
-			
+
 			String[] projection = { MediaStore.Video.Media.DATA,
 					MediaStore.Video.Media.SIZE, MediaStore.Video.Media.TITLE };
-			
+
 			try {
-				cursor = cr.query(cameraVideoURI, projection, null,
-						null, null);
+				cursor = cr.query(cameraVideoURI, projection, null, null, null);
 			} catch (Exception e) {
 				return;
 			}

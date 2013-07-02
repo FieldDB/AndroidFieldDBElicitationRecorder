@@ -97,14 +97,14 @@ public class DatumsDbAdapter {
 	}
 
 	/**
-	 * Create a new note using the fields provided. If the note is
-	 * successfully created return the new rowId for that note, otherwise return
-	 * a -1 to indicate failure.
+	 * Create a new note using the fields provided. If the note is successfully
+	 * created return the new rowId for that note, otherwise return a -1 to
+	 * indicate failure.
 	 * 
 	 * @return rowId or -1 if failed
 	 */
-	public long createNote(String couch_id, String field1, String field2, String field3,
-			String field4, String field5) {
+	public long createNote(String couch_id, String field1, String field2,
+			String field3, String field4, String field5) {
 		ContentValues initialValues = new ContentValues();
 		initialValues.put(KEY_COUCH_ID, couch_id);
 		initialValues.put(KEY_FIELD1, field1);
@@ -133,12 +133,13 @@ public class DatumsDbAdapter {
 	 * 
 	 * @return Cursor over all notes
 	 */
-//	public Cursor fetchAllDatums() {
-//
-//		return mDb.query(DATABASE_TABLE, new String[] { KEY_ROWID, KEY_COUCH_ID, KEY_FIELD1,
-//				KEY_FIELD2, KEY_FIELD3, KEY_FIELD4, KEY_FIELD5 },
-//				null, null, null, null, KEY_ROWID + " DESC");
-//	}
+	// public Cursor fetchAllDatums() {
+	//
+	// return mDb.query(DATABASE_TABLE, new String[] { KEY_ROWID, KEY_COUCH_ID,
+	// KEY_FIELD1,
+	// KEY_FIELD2, KEY_FIELD3, KEY_FIELD4, KEY_FIELD5 },
+	// null, null, null, null, KEY_ROWID + " DESC");
+	// }
 
 	/**
 	 * Return a Cursor positioned at the note that matches the given rowId
@@ -151,11 +152,16 @@ public class DatumsDbAdapter {
 	 */
 	public Cursor fetchNote(long rowId) throws SQLException {
 
-		Cursor mCursor =
-
-		mDb.query(true, DATABASE_TABLE, new String[] { KEY_ROWID, KEY_COUCH_ID, KEY_FIELD1,
-				KEY_FIELD2, KEY_FIELD3, KEY_FIELD4, KEY_FIELD5 },
-				KEY_ROWID + "=" + rowId, null, null, null, null, null);
+		Cursor mCursor;
+		try {
+			mCursor = mDb.query(true, DATABASE_TABLE, new String[] { KEY_ROWID,
+					KEY_COUCH_ID, KEY_FIELD1, KEY_FIELD2, KEY_FIELD3,
+					KEY_FIELD4, KEY_FIELD5 }, KEY_ROWID + "=" + rowId, null,
+					null, null, null, null);
+		} catch (Exception e) {
+			Log.v("TEST", "Error retrieving requested database record " + rowId);
+			return null;
+		}
 		if (mCursor != null) {
 			mCursor.moveToFirst();
 		}
@@ -172,8 +178,8 @@ public class DatumsDbAdapter {
 	 *            id of note to update
 	 * @return true if the note was successfully updated, false otherwise
 	 */
-	public boolean updateNote(long rowId, String couch_id, String field1, String field2,
-			String field3, String field4, String field5) {
+	public boolean updateNote(long rowId, String couch_id, String field1,
+			String field2, String field3, String field4, String field5) {
 		ContentValues args = new ContentValues();
 		args.put(KEY_COUCH_ID, couch_id);
 		args.put(KEY_FIELD1, field1);
@@ -184,7 +190,7 @@ public class DatumsDbAdapter {
 
 		return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
 	}
-	
+
 	/**
 	 * Return a Cursor over the list of all notes in the database
 	 * 
@@ -192,8 +198,8 @@ public class DatumsDbAdapter {
 	 */
 	public Cursor fetchAllDatums() {
 
-		return mDb.query(DATABASE_TABLE, new String[] { KEY_ROWID, KEY_COUCH_ID, KEY_FIELD1,
-				KEY_FIELD2, KEY_FIELD3, KEY_FIELD4, KEY_FIELD5 },
-				null, null, null, null, KEY_ROWID + " DESC");
+		return mDb.query(DATABASE_TABLE, new String[] { KEY_ROWID,
+				KEY_COUCH_ID, KEY_FIELD1, KEY_FIELD2, KEY_FIELD3, KEY_FIELD4,
+				KEY_FIELD5 }, null, null, null, null, KEY_ROWID + " DESC");
 	}
 }

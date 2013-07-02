@@ -109,12 +109,49 @@ public class GalleryView extends Activity {
 
 				if (videoTitleSubParts[0].equals("fielddb")) {
 					// Get SQL session id (row id)
-					Long rowID = Long.parseLong(videoTitleSubParts[3]);
-
+					Long rowID;
 					Bitmap b;
+					try {
+						rowID = Long.parseLong(videoTitleSubParts[3]);
+						b = MediaStore.Video.Thumbnails.getThumbnail(cr, id,
+								MediaStore.Video.Thumbnails.MINI_KIND, null);
+					} catch (Exception e) {
+						Log.v("TEST", "Found a malformed video file. "
+								+ videoTitle);
+						continue;
+					}
 
-					b = MediaStore.Video.Thumbnails.getThumbnail(cr, id,
-							MediaStore.Video.Thumbnails.MINI_KIND, null);
+					Cursor note = mDbHelper.fetchNote(rowID);;
+					if (note == null) {
+						continue;
+					}
+					
+					// Get goal for image label
+					String tempGoal;
+					String goal;
+					String tempDate;
+					String imageLabelText;
+
+					try {
+						tempGoal = note
+								.getString(note
+										.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD1));
+						tempDate = note
+								.getString(note
+										.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD5));
+
+						if (tempGoal.length() > 16) {
+							goal = tempGoal.substring(0, 15).concat("...");
+						} else {
+							goal = tempGoal;
+						}
+						
+						// TODO Format date
+						imageLabelText = goal.concat("\n").concat(tempDate);
+
+					} catch (Exception e) {
+						continue;
+					}
 
 					ImageView thumbnail = new ImageView(this);
 
@@ -147,30 +184,6 @@ public class GalleryView extends Activity {
 					});
 
 					TextView thumbnailLabel = new TextView(this);
-
-
-					// Get goal for image label
-					Cursor note = mDbHelper.fetchNote(rowID);
-					String tempGoal;
-					String tempDate;
-					try {
-					tempGoal = note.getString(note
-							.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD1));
-					tempDate = note.getString(note
-							.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD5));
-					} catch (Exception e) {
-						Log.v("TEST", "No session record matching this video file.");
-						return;
-					}
-					String goal;
-					if (tempGoal.length() > 16) {
-						goal = tempGoal.substring(0, 15).concat("...");
-					} else {
-						goal = tempGoal;
-					}
-
-					// TODO Format date
-					String imageLabelText = goal.concat("\n").concat(tempDate);
 
 					thumbnailLabel.setText(imageLabelText);
 
@@ -250,22 +263,22 @@ public class GalleryView extends Activity {
 	public void onResume() {
 		super.onResume();
 		// Populate video preview list on load
-		try {
-			populateVideoPreview();
-		} catch (Exception e) {
-			AlertDialog.Builder alert = new AlertDialog.Builder(this);
-			alert.setTitle(R.string.notification);
-			alert.setMessage(R.string.dialog_sql_error);
-
-			alert.setPositiveButton(R.string.ok,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog,
-								int whichButton) {
-							dialog.cancel();
-						}
-					});
-			AlertDialog alertDialog = alert.create();
-			alertDialog.show();
-		}
+		// try {
+		populateVideoPreview();
+		// } catch (Exception e) {
+		// AlertDialog.Builder alert = new AlertDialog.Builder(this);
+		// alert.setTitle(R.string.notification);
+		// alert.setMessage(R.string.dialog_sql_error);
+		//
+		// alert.setPositiveButton(R.string.ok,
+		// new DialogInterface.OnClickListener() {
+		// public void onClick(DialogInterface dialog,
+		// int whichButton) {
+		// dialog.cancel();
+		// }
+		// });
+		// AlertDialog alertDialog = alert.create();
+		// alertDialog.show();
+		// }
 	}
 }

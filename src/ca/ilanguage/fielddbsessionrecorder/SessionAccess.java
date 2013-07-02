@@ -15,6 +15,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -80,7 +81,9 @@ public class SessionAccess extends FragmentActivity implements
 	}
 
 	public void recordVideo() {
-
+		if (rowID.isEmpty()) {
+			rowID = mRow_IDText.getText().toString();
+		}
 		if (rowID == null) {
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
 			alert.setTitle(R.string.notification);

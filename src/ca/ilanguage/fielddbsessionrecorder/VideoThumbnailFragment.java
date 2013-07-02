@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -67,8 +68,14 @@ public class VideoThumbnailFragment extends Fragment {
 				String[] videoTitleParts = videoTitle.split("[.]");
 				String[] videoTitleSubParts = videoTitleParts[0].split("_");
 				if (videoTitleSubParts[0].equals("fielddb")) {
-					Long rowID = Long.parseLong(videoTitleSubParts[3]);
-
+					Long rowID;
+					try {
+						rowID = Long.parseLong(videoTitleSubParts[3]);
+					} catch (Exception e) {
+						Log.v("TEST", "Found a malformed video file."
+								+ videoTitle);
+						continue;
+					}
 					if (rowID == currentRowId) {
 						Bitmap b;
 						b = MediaStore.Video.Thumbnails.getThumbnail(cr, id,
