@@ -1,9 +1,9 @@
 package ca.ilanguage.fielddbsessionrecorder;
 
-import java.io.File;
-
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -18,7 +18,6 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -33,7 +32,6 @@ import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
 public class GalleryView extends Activity {
-	File videosFolder;
 	private DatumsDbAdapter mDbHelper;
 	LinearLayout carouselLayout;
 	private static final int SESSION_LIST_VIEW_ID = Menu.FIRST;
@@ -47,10 +45,6 @@ public class GalleryView extends Activity {
 		mDbHelper = new DatumsDbAdapter(this);
 		mDbHelper.open();
 
-		// Create video folder if it does not already exist
-		videosFolder = new File(Environment.getExternalStorageDirectory(),
-				"FieldDBSessions");
-		videosFolder.mkdir();
 		carouselLayout = (LinearLayout) findViewById(R.id.videoPreviewCarousel);
 	}
 
@@ -119,11 +113,12 @@ public class GalleryView extends Activity {
 						continue;
 					}
 
-					Cursor note = mDbHelper.fetchNote(rowID);;
+					Cursor note = mDbHelper.fetchNote(rowID);
+					;
 					if (note == null) {
 						continue;
 					}
-					
+
 					// Get goal for image label
 					String tempGoal;
 					String goal;
@@ -143,7 +138,7 @@ public class GalleryView extends Activity {
 						} else {
 							goal = tempGoal;
 						}
-						
+
 						// TODO Format date
 						imageLabelText = goal.concat("\n").concat(tempDate);
 
@@ -175,8 +170,8 @@ public class GalleryView extends Activity {
 							Long rowID = Long.parseLong(filePathSubParts[3]);
 							accessSession.putExtra("videoFilename", v.getTag()
 									.toString());
-							accessSession
-									.putExtra(DatumsDbAdapter.KEY_ROWID, rowID);
+							accessSession.putExtra(DatumsDbAdapter.KEY_ROWID,
+									rowID);
 							startActivity(accessSession);
 						}
 					});
@@ -219,7 +214,8 @@ public class GalleryView extends Activity {
 					} else {
 						thumbnailLabel.setTextSize(20);
 					}
-					thumbnailLabel.setShadowLayer(1.5f, -1, 1, Color.LTGRAY);
+					thumbnailLabel.setShadowLayer(10f, 0, 0,
+							Color.parseColor("#000000"));
 					thumbnailLabel.setLayoutParams(text_lp);
 
 					// Add individual items to relative layout container
@@ -233,6 +229,24 @@ public class GalleryView extends Activity {
 			} while (c.moveToNext());
 		}
 		c.close();
+		LinearLayout galleryThumbnails = (LinearLayout) findViewById(R.id.videoPreviewCarousel);
+		int numberOfThumbnails = galleryThumbnails.getChildCount();
+		Log.v("TEST", "There are " + numberOfThumbnails + " videos.");
+		if (numberOfThumbnails == 0) {
+			AlertDialog.Builder alert = new AlertDialog.Builder(this);
+			alert.setTitle(R.string.notification);
+			alert.setMessage(R.string.dialog_welcome);
+
+			alert.setPositiveButton(R.string.ok,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog,
+								int whichButton) {
+							dialog.cancel();
+						}
+					});
+			AlertDialog alertDialog = alert.create();
+			alertDialog.show();
+		}
 	}
 
 	public static Bitmap getRoundedCornerBitmap(Bitmap bitmap, int pixels) {
@@ -260,23 +274,6 @@ public class GalleryView extends Activity {
 	@Override
 	public void onResume() {
 		super.onResume();
-		// Populate video preview list on load
-		// try {
 		populateVideoPreview();
-		// } catch (Exception e) {
-		// AlertDialog.Builder alert = new AlertDialog.Builder(this);
-		// alert.setTitle(R.string.notification);
-		// alert.setMessage(R.string.dialog_sql_error);
-		//
-		// alert.setPositiveButton(R.string.ok,
-		// new DialogInterface.OnClickListener() {
-		// public void onClick(DialogInterface dialog,
-		// int whichButton) {
-		// dialog.cancel();
-		// }
-		// });
-		// AlertDialog alertDialog = alert.create();
-		// alertDialog.show();
-		// }
 	}
 }
