@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="50"
-            class="ca.ilanguage.fielddbsessionrecorder.EditSessionFragment" >
+            class="org.lingsync.elicitation.collection.EditSessionFragment" >
         </fragment>
 
         <fragment
@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="50"
-            class="ca.ilanguage.fielddbsessionrecorder.PlayVideoFragment" >
+            class="org.lingsync.elicitation.collection.PlayVideoFragment" >
         </fragment>
     </LinearLayout>
 
@@ -38,7 +38,7 @@
             android:id="@+id/videoThumbnailFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            class="ca.ilanguage.fielddbsessionrecorder.VideoThumbnailFragment" >
+            class="org.lingsync.elicitation.collection.VideoThumbnailFragment" >
         </fragment>
     </LinearLayout>
 

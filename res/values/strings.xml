@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">FieldDB Session Recorder</string>
+    <string name="app_name">LingSync Session Recorder</string>
     <string name="action_settings">Settings</string>
     <string name="record_video">Record</string>
     <string name="show_hide">Show/Hide</string>
