@@ -1,7 +1,5 @@
 package ca.ilanguage.fielddbsessionrecorder;
 
-import java.io.File;
-
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -10,23 +8,19 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 
-public class SessionAccess extends FragmentActivity
-//implements VideoThumbnailFragment.PublicInterface
-		{
+public class SessionAccess extends FragmentActivity {
 	private static final int VIDEO_GALLERY_VIEW_ID = Menu.FIRST;
 	private static final int SESSION_LIST_VIEW_ID = Menu.FIRST + 1;
 	private static final int NEW_VIDEO_ID = Menu.FIRST + 2;
 	private static final int RECORD_VIDEO = 0;
 	private EditText mRow_IDText;
 	VideoThumbnailFragment videoThumbnailFragment;
-	private File videosFolder;
 	String rowID;
 	Uri cameraVideoURI;
 
@@ -37,10 +31,6 @@ public class SessionAccess extends FragmentActivity
 
 		mRow_IDText = (EditText) findViewById(R.id.row_id);
 		rowID = mRow_IDText.getText().toString();
-		// Create video folder if it does not already exist
-		videosFolder = new File(Environment.getExternalStorageDirectory(),
-				"FieldDBSessions");
-		videosFolder.mkdir();
 	}
 
 	@Override
@@ -133,30 +123,22 @@ public class SessionAccess extends FragmentActivity
 
 			int column_index_data = cursor
 					.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+			int videoTitleIndex = cursor
+					.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE);
 			cursor.moveToFirst();
 			String recordedVideoFilePath = cursor.getString(column_index_data);
+			String videoTitle = cursor.getString(videoTitleIndex);
 			Uri fileUri = Uri.parse(recordedVideoFilePath);
 			cursor.close();
 			// Broadcast to media scanner that new file is present so that
 			// thumbnails will be updated
 			sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
 					fileUri));
+
+			// Set new video to be played in fragment
+			PlayVideoFragment playVideoFragment = (PlayVideoFragment) getSupportFragmentManager()
+					.findFragmentById(R.id.playVideoFragment);
+			playVideoFragment.setVideo(videoTitle);
 		}
 	}
-
-	// Hides or shows VideoThumbnailFragment depending on whether there are video
-	// thumbnails to be displayed
-//	public void hideVideoThumbnailFragment(Boolean hide) {
-//		FragmentManager fragmentManager = getSupportFragmentManager();
-//		FragmentTransaction fragmentTransaction = fragmentManager
-//				.beginTransaction();
-//		VideoThumbnailFragment videoThumbnailFragment = (VideoThumbnailFragment) fragmentManager
-//				.findFragmentById(R.id.videoThumbnailFragment);
-//		if (hide == true) {
-//			fragmentTransaction.hide(videoThumbnailFragment);
-//		} else {
-//			fragmentTransaction.show(videoThumbnailFragment);
-//		}
-//		fragmentTransaction.commit();
-//	}
 }
