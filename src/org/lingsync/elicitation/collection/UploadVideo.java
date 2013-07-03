@@ -117,9 +117,7 @@ public class UploadVideo extends IntentService {
 			String newLine;
 			do {
 				newLine = reader.readLine();
-				Log.v(TAG, "newLine: " + newLine);
 				if (newLine != null) {
-//					JSONResponse.concat(newLine);
 					JSONResponse += newLine;
 				}
 			} while (newLine != null);
