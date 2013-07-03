@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -25,6 +24,7 @@ public class SessionAccess extends FragmentActivity {
 	public static final String EXTRA_FILEPATH = "extra_file_path";
 	public static final String EXTRA_FILENAME = "fileName";
 	private EditText mRow_IDText;
+
 	VideoThumbnailFragment videoThumbnailFragment;
 	String rowID;
 	Uri cameraVideoURI;
@@ -118,7 +118,6 @@ public class SessionAccess extends FragmentActivity {
 		try {
 			VideoView videoView = (VideoView) findViewById(R.id.IVDisplay);
 			fileName = videoView.getTag().toString();
-			Log.v("TEST", "fileName is " + fileName);
 		} catch (Exception e) {
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
 			alert.setTitle(R.string.notification);
@@ -154,8 +153,6 @@ public class SessionAccess extends FragmentActivity {
 		String filePath = cursor.getString(columnIndex);
 		cursor.close();
 
-		Log.v("TEST", "filePath is " + filePath);
-		
 		Intent uploadVideo = new Intent(getApplicationContext(),
 				UploadVideo.class);
 		uploadVideo.putExtra(EXTRA_FILEPATH, filePath);

@@ -24,7 +24,12 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -75,7 +80,6 @@ public class UploadVideo extends IntentService {
 		notifyUser(uploadStatusMessage, noti, notificationId, false);
 
 		/* Actually uploads the video */
-		// HttpClient httpClient = new DefaultHttpClient();
 		HttpClient httpClient = new SecureHttpClient(getApplicationContext());
 
 		HttpContext localContext = new BasicHttpContext();
@@ -88,8 +92,6 @@ public class UploadVideo extends IntentService {
 				Charset.forName("UTF-8"));
 
 		try {
-			// entity.addPart("inspectionId", new StringBody(inspectionId,
-			// "text/plain", Charset.forName("UTF-8")));
 			entity.addPart(
 					"token",
 					new StringBody(token, "text/plain", Charset
@@ -102,7 +104,8 @@ public class UploadVideo extends IntentService {
 			e.printStackTrace();
 		}
 
-		entity.addPart("file", new FileBody(new File(dataFile), "video/3gp"));
+		entity.addPart("videoFile", new FileBody(new File(dataFile),
+				"video/3gp"));
 		httpPost.setEntity(entity);
 		String userFriendlyErrorMessage = "";
 		uploadStatusMessage = getString(R.string.contacting_server);
@@ -131,6 +134,30 @@ public class UploadVideo extends IntentService {
 								.get("url");
 						notifyUser(uploadStatusMessage, noti, notificationId,
 								false);
+						// Add new metadata including url to audio files
+						// Find video file in MediaStore
+						ContentResolver cr = getContentResolver();
+						Uri videosUri = MediaStore.Video.Media
+								.getContentUri("external");
+						String[] projection = { MediaStore.Video.VideoColumns.DATA, MediaStore.Video.VideoColumns._ID };
+						Cursor cursor;
+						try {
+							cursor = cr.query(videosUri, projection,
+									MediaStore.Video.VideoColumns.TITLE
+											+ " LIKE ?",
+									new String[] { fileName }, null);
+
+							cursor.moveToFirst();
+						} catch (Exception e) {
+							return;
+						}
+						Uri videoFileUri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "" + cursor.getInt(cursor.getColumnIndex(MediaStore.Video.VideoColumns._ID)));
+						ContentValues values = new ContentValues(3);
+						values.put(MediaStore.Video.Media.TAGS,
+								uploadStatusMessage);
+						cr.update(videoFileUri,
+								values, null, null);
+						cursor.close();
 					}
 				} catch (JSONException e) {
 					Log.d(TAG, "No successs message");

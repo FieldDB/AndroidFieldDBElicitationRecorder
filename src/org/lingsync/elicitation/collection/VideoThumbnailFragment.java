@@ -6,6 +6,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff.Mode;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
@@ -51,7 +58,7 @@ public class VideoThumbnailFragment extends Fragment {
 
 		// Query for all videos on external storage
 		ContentResolver cr = getActivity().getContentResolver();
-		String[] proj = { BaseColumns._ID, MediaStore.Video.Media.TITLE };
+		String[] proj = { BaseColumns._ID, MediaStore.Video.Media.TITLE, MediaStore.Video.Media.TAGS };
 
 		Cursor cursor = cr.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
 				proj, null, null, null);
@@ -79,6 +86,19 @@ public class VideoThumbnailFragment extends Fragment {
 						b = MediaStore.Video.Thumbnails.getThumbnail(cr, id,
 								MediaStore.Video.Thumbnails.MICRO_KIND, null);
 						ImageView thumbnail = new ImageView(c);
+						
+						//TODO Do something special with thumbnails of videos that have been uploaded
+						int videoTagsIndex = cursor
+								.getColumnIndexOrThrow(MediaStore.Video.Media.TAGS);
+						String externalVideoURL = cursor.getString(videoTagsIndex);
+						
+						if (externalVideoURL != null) {
+							b = getRoundedCornerBitmap(b, 40);
+						}
+						// END TODO
+						
+						
+						
 						thumbnail.setImageBitmap(b);
 						thumbnail.setPadding(10, 10, 10, 10);
 						thumbnail.setAdjustViewBounds(true);
@@ -96,7 +116,7 @@ public class VideoThumbnailFragment extends Fragment {
 												v.getContext());
 										alert.setTitle(R.string.delete_video);
 										alert.setMessage(R.string.dialog_verify_delete_video);
-
+										
 										alert.setPositiveButton(
 												R.string.delete_video,
 												new DialogInterface.OnClickListener() {
@@ -189,5 +209,27 @@ public class VideoThumbnailFragment extends Fragment {
 		// Calling updateThumbnails from here allows it to be called on initial
 		// create and after video intent resolution
 		updateThumbnails(getActivity());
+	}
+	
+	public static Bitmap getRoundedCornerBitmap(Bitmap bitmap, int pixels) {
+		Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+				bitmap.getHeight(), Config.ARGB_8888);
+		Canvas canvas = new Canvas(output);
+
+		final int color = 0xff424242;
+		final Paint paint = new Paint();
+		final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+		final RectF rectF = new RectF(rect);
+		final float roundPx = pixels;
+
+		paint.setAntiAlias(true);
+		canvas.drawARGB(0, 0, 0, 0);
+		paint.setColor(color);
+		canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+
+		paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
+		canvas.drawBitmap(bitmap, rect, rect, paint);
+
+		return output;
 	}
 }
