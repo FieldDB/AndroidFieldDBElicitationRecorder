@@ -10,6 +10,7 @@
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -33,6 +34,9 @@
         <activity
             android:name="org.lingsync.elicitation.collection.SessionAccess"
             android:windowSoftInputMode="stateUnchanged" />
+
+        <service android:name="org.lingsync.elicitation.collection.UploadVideo" >
+        </service>
     </application>
 
 </manifest>

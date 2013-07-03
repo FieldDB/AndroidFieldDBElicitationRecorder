@@ -11,6 +11,7 @@
     <string name="menu_select_session">Select Session</string>
     <string name="menu_new_session">New Session</string>
     <string name="menu_new_video">Record Video</string>
+    <string name="menu_upload_video">Upload Video</string>
     <string name="video_preview">Video Preview</string>
     <string name="no_data">No sessions to display.</string>
     <string name="menu_delete">Delete?</string>
@@ -21,6 +22,7 @@
     <string name="dialog_please_save">Please save session (click Confirm) before continuing.</string>
     <string name="dialog_sql_error">Whoops! There was an error!\nThe app might not function correctly.\nYou may want to delete video files from the FieldDB folder on your device\'s SD Card.</string>
     <string name="dialog_welcome">Welcome!\n\n Use the dropdown menu to create or choose a session and begin recording video.</string>
+    <string name="dialog_select_video">Please select a video to upload.</string>
     <string name="cancel">Cancel</string>
     <string name="notification">Notification</string>
     <string name="saved">Saved</string>
@@ -34,5 +36,11 @@
     <string name="field4">Dialect</string>
     <string name="field5">Date Elicited</string>
     <string name="confirm">Confirm</string>
+    <string name="preparing_upload">Preparing Upload</string>
+    <string name="video_upload">Video Upload</string>
+    <string name="contacting_server">Contacting Server</string>
+    <string name="server_contacted">Server Contacted</string>
+    <string name="error_while_uploading">Error While Uploading</string>
+    <string name="try_again">Try Again</string>
 
 </resources>
