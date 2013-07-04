@@ -14,6 +14,8 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
@@ -80,8 +82,8 @@ public class VideoThumbnailFragment extends Fragment {
 					try {
 						rowID = Long.parseLong(videoTitleSubParts[3]);
 					} catch (Exception e) {
-						Log.v(PrivateConstants.TAG, "Found a malformed video file."
-								+ videoTitle);
+						Log.v(PrivateConstants.TAG,
+								"Found a malformed video file." + videoTitle);
 						continue;
 					}
 					if (rowID == currentRowId) {
@@ -236,7 +238,26 @@ public class VideoThumbnailFragment extends Fragment {
 	}
 
 	public void uploadVideo(String fileName, String url) {
-		if (url == "") {
+
+		Boolean wifiConnected = isConnected(getActivity());
+
+		if (isConnected(getActivity()) != true) {
+			Log.v(PrivateConstants.TAG, "Not connected to Wifi!");
+			AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+			alert.setTitle(R.string.notification);
+			alert.setMessage(R.string.not_connected_to_wifi);
+
+			alert.setPositiveButton(R.string.ok,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog,
+								int whichButton) {
+							dialog.cancel();
+						}
+					});
+			AlertDialog alertDialog = alert.create();
+			alertDialog.show();
+			return;
+		} else if (url == "") {
 			// Find video file in MediaStore
 			ContentResolver cr = getActivity().getContentResolver();
 			Uri videosUri = MediaStore.Video.Media.getContentUri("external");
@@ -344,12 +365,6 @@ public class VideoThumbnailFragment extends Fragment {
 		updateThumbnails(getActivity());
 	}
 
-	// @Override
-	// public void onDestroy() {
-	// super.onDestroy();
-	// getActivity().unregisterReceiver(receiver);
-	// }
-
 	public static Bitmap getRoundedCornerBitmap(Bitmap bitmap, int pixels) {
 		Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
 				bitmap.getHeight(), Config.ARGB_8888);
@@ -370,5 +385,16 @@ public class VideoThumbnailFragment extends Fragment {
 		canvas.drawBitmap(bitmap, rect, rect, paint);
 
 		return output;
+	}
+
+	private static boolean isConnected(Context context) {
+		ConnectivityManager connectivityManager = (ConnectivityManager) context
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = null;
+		if (connectivityManager != null) {
+			networkInfo = connectivityManager
+					.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+		}
+		return networkInfo == null ? false : networkInfo.isConnected();
 	}
 }
