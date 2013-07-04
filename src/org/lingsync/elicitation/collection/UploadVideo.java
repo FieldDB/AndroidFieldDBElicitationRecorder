@@ -35,7 +35,7 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 public class UploadVideo extends IntentService {
-	protected String TAG = PrivateConstants.TAG;
+	public String TAG = PrivateConstants.TAG;
 
 	public UploadVideo() {
 		super("UploadVideo");

@@ -38,8 +38,7 @@ public class GalleryView extends Activity {
 	LinearLayout carouselLayout;
 	private static final int SESSION_LIST_VIEW_ID = Menu.FIRST;
 	private static final int NEW_SESSION_ID = Menu.FIRST + 1;
-	
-	protected String TAG = PrivateConstants.TAG;
+	public String TAG = PrivateConstants.TAG;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +49,7 @@ public class GalleryView extends Activity {
 		mDbHelper.open();
 
 		carouselLayout = (LinearLayout) findViewById(R.id.videoPreviewCarousel);
-		
+
 		DeviceDetails mDeviceDetails = new DeviceDetails(this, true, TAG);
 		Log.v(TAG, mDeviceDetails.getCurrentDeviceDetails());
 	}
@@ -89,7 +88,6 @@ public class GalleryView extends Activity {
 	}
 
 	public void populateVideoPreview() {
-
 		// Query for all videos on external storage
 		ContentResolver cr = getContentResolver();
 		String[] proj = { BaseColumns._ID, MediaStore.Video.Media.TITLE };
@@ -115,8 +113,8 @@ public class GalleryView extends Activity {
 						b = MediaStore.Video.Thumbnails.getThumbnail(cr, id,
 								MediaStore.Video.Thumbnails.MINI_KIND, null);
 					} catch (Exception e) {
-						Log.v(TAG,
-								"Found a malformed video file. " + videoTitle);
+						Log.v(TAG, "Found a malformed video file. "
+								+ videoTitle);
 						continue;
 					}
 

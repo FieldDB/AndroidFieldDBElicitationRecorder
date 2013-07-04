@@ -29,8 +29,7 @@ public class SessionAccess extends FragmentActivity {
 	private BroadcastReceiver receiver;
 	private DeviceDetails mDeviceDetails;
 	private Boolean D = true;
-	protected String TAG = PrivateConstants.TAG;
-
+	public String TAG = PrivateConstants.TAG;
 
 	VideoThumbnailFragment videoThumbnailFragment;
 	String rowID;

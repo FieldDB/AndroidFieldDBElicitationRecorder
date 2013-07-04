@@ -32,7 +32,7 @@ import android.widget.LinearLayout;
 
 public class VideoThumbnailFragment extends Fragment {
 	private Long currentRowId;
-	protected String TAG = PrivateConstants.TAG;
+	protected String TAG;
 	LinearLayout carouselLayout;
 
 	// private BroadcastReceiver receiver;
@@ -42,7 +42,7 @@ public class VideoThumbnailFragment extends Fragment {
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_video_thumbnails,
 				container, false);
-
+		TAG = PrivateConstants.TAG;
 		currentRowId = (savedInstanceState == null || savedInstanceState
 				.getSerializable(DatumsDbAdapter.KEY_ROWID) == null) ? null
 				: (Long) savedInstanceState
@@ -83,8 +83,7 @@ public class VideoThumbnailFragment extends Fragment {
 					try {
 						rowID = Long.parseLong(videoTitleSubParts[3]);
 					} catch (Exception e) {
-						Log.v(TAG,
-								"Found a malformed video file." + videoTitle);
+						Log.v(TAG, "Found a malformed video file." + videoTitle);
 						continue;
 					}
 					if (rowID == currentRowId) {
