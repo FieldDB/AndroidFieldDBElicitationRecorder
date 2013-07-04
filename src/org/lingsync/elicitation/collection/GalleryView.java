@@ -31,6 +31,8 @@ import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
+
 public class GalleryView extends Activity {
 	private DatumsDbAdapter mDbHelper;
 	LinearLayout carouselLayout;
@@ -108,8 +110,8 @@ public class GalleryView extends Activity {
 						b = MediaStore.Video.Thumbnails.getThumbnail(cr, id,
 								MediaStore.Video.Thumbnails.MINI_KIND, null);
 					} catch (Exception e) {
-						Log.v(PrivateConstants.TAG, "Found a malformed video file. "
-								+ videoTitle);
+						Log.v(PrivateConstants.TAG,
+								"Found a malformed video file. " + videoTitle);
 						continue;
 					}
 
@@ -163,13 +165,15 @@ public class GalleryView extends Activity {
 						public void onClick(View v) {
 							Intent accessSession = new Intent(v.getContext(),
 									SessionAccess.class);
-							String[] filePathParts = v.getTag(R.id.VIDEO_FILENAME_TAG_KEY).toString()
-									.split("[.]");
+							String[] filePathParts = v
+									.getTag(R.id.VIDEO_FILENAME_TAG_KEY)
+									.toString().split("[.]");
 							String[] filePathSubParts = filePathParts[0]
 									.split("_");
 							Long rowID = Long.parseLong(filePathSubParts[3]);
-							accessSession.putExtra("videoFilename", v.getTag(R.id.VIDEO_FILENAME_TAG_KEY)
-									.toString());
+							accessSession.putExtra("videoFilename",
+									v.getTag(R.id.VIDEO_FILENAME_TAG_KEY)
+											.toString());
 							accessSession.putExtra(DatumsDbAdapter.KEY_ROWID,
 									rowID);
 							startActivity(accessSession);
@@ -274,5 +278,17 @@ public class GalleryView extends Activity {
 	public void onResume() {
 		super.onResume();
 		populateVideoPreview();
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		EasyTracker.getInstance().activityStart(this); // Add this method.
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		EasyTracker.getInstance().activityStop(this); // Add this method.
 	}
 }

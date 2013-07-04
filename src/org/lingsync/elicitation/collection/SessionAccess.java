@@ -18,6 +18,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 
+import com.google.analytics.tracking.android.EasyTracker;
+
 public class SessionAccess extends FragmentActivity {
 	private static final int VIDEO_GALLERY_VIEW_ID = Menu.FIRST;
 	private static final int SESSION_LIST_VIEW_ID = Menu.FIRST + 1;
@@ -96,6 +98,7 @@ public class SessionAccess extends FragmentActivity {
 		if (rowID.isEmpty()) {
 			rowID = mRow_IDText.getText().toString();
 		}
+
 		if (rowID == null) {
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
 			alert.setTitle(R.string.notification);
@@ -171,12 +174,17 @@ public class SessionAccess extends FragmentActivity {
 		super.onDestroy();
 		unregisterReceiver(receiver);
 	}
-	// public void callUpdateThumbnails() {
-	// VideoThumbnailFragment videoThumbnailFragment = (VideoThumbnailFragment)
-	// getSupportFragmentManager().findFragmentById(R.id.videoThumbnailFragment);
-	// if (videoThumbnailFragment.isInLayout()) {
-	// videoThumbnailFragment.updateThumbnails(this);
-	// }
-	// }
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		EasyTracker.getInstance().activityStart(this); // Add this method.
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		EasyTracker.getInstance().activityStop(this); // Add this method.
+	}
 
 }
