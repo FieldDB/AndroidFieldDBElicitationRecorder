@@ -78,7 +78,7 @@ public class UploadVideo extends IntentService {
 				getResources().getString(R.string.video_upload));
 		Notification noti = new NotificationCompat.Builder(this)
 				.setTicker(uploadStatusMessage).setContent(notificationView)
-				.setSmallIcon(R.drawable.ic_record).setContentIntent(pIntent)
+				.setSmallIcon(R.drawable.ic_lingsync).setContentIntent(pIntent)
 				.build();
 		noti.flags = Notification.FLAG_AUTO_CANCEL;
 		notifyUser(uploadStatusMessage, noti, notificationId, false);
