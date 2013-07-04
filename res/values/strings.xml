@@ -25,8 +25,8 @@
     <string name="dialog_please_upload">You must upload this file first.</string>
     <string name="dialog_welcome">Welcome!\n\n Use the dropdown menu to create or choose a session and begin recording video.</string>
     <string name="dialog_select_video">Please select a video to upload.</string>
-        <string name="video_already_uploaded">This video has already been uploaded.</string>
-    
+    <string name="video_already_uploaded">This video has already been uploaded.</string>
+    <string name="not_connected_to_wifi">You must have an active WiFi connection to upload video.</string>
     <string name="cancel">Cancel</string>
     <string name="notification">Notification</string>
     <string name="saved">Saved</string>
