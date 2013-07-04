@@ -55,10 +55,16 @@ public class UploadVideo extends IntentService {
 				PrivateConstants.EXTRA_FILEPATH);
 
 		// Check for well-formed extras
+		if (fileName == null || dataFile == null) {
+			Log.e(PrivateConstants.TAG,
+					"Invalid call to UploadVideo intent service.");
+			return;
+		}
 
-		// tryUploadAgain (What's this for?)
+		// tryUploadAgain
 		Intent tryUploadAgain = new Intent(this, UploadVideo.class);
-		// Put extras into tryUploadAgain intent (but from where?)
+		tryUploadAgain.putExtra(PrivateConstants.EXTRA_FILENAME, fileName);
+		tryUploadAgain.putExtra(PrivateConstants.EXTRA_FILEPATH, dataFile);
 
 		PendingIntent pIntent = PendingIntent.getService(this, 323813,
 				tryUploadAgain, Intent.FLAG_ACTIVITY_NO_HISTORY);
