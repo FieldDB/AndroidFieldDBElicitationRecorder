@@ -48,6 +48,9 @@ public class GalleryView extends Activity {
 		mDbHelper.open();
 
 		carouselLayout = (LinearLayout) findViewById(R.id.videoPreviewCarousel);
+		
+		DeviceDetails mDeviceDetails = new DeviceDetails(this, true, PrivateConstants.TAG);
+		Log.v(PrivateConstants.TAG, mDeviceDetails.getCurrentDeviceDetails());
 	}
 
 	@Override
