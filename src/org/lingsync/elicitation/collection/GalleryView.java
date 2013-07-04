@@ -108,7 +108,7 @@ public class GalleryView extends Activity {
 						b = MediaStore.Video.Thumbnails.getThumbnail(cr, id,
 								MediaStore.Video.Thumbnails.MINI_KIND, null);
 					} catch (Exception e) {
-						Log.v("TEST", "Found a malformed video file. "
+						Log.v(PrivateConstants.TAG, "Found a malformed video file. "
 								+ videoTitle);
 						continue;
 					}
@@ -155,7 +155,7 @@ public class GalleryView extends Activity {
 							R.drawable.image_border);
 					thumbnail.setBackground(d);
 
-					thumbnail.setTag(videoTitle);
+					thumbnail.setTag(R.id.VIDEO_FILENAME_TAG_KEY, videoTitle);
 
 					// Go to NoteTaking activity on normal click
 					thumbnail.setOnClickListener(new OnClickListener() {
@@ -163,12 +163,12 @@ public class GalleryView extends Activity {
 						public void onClick(View v) {
 							Intent accessSession = new Intent(v.getContext(),
 									SessionAccess.class);
-							String[] filePathParts = v.getTag().toString()
+							String[] filePathParts = v.getTag(R.id.VIDEO_FILENAME_TAG_KEY).toString()
 									.split("[.]");
 							String[] filePathSubParts = filePathParts[0]
 									.split("_");
 							Long rowID = Long.parseLong(filePathSubParts[3]);
-							accessSession.putExtra("videoFilename", v.getTag()
+							accessSession.putExtra("videoFilename", v.getTag(R.id.VIDEO_FILENAME_TAG_KEY)
 									.toString());
 							accessSession.putExtra(DatumsDbAdapter.KEY_ROWID,
 									rowID);

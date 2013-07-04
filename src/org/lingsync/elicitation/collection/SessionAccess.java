@@ -1,29 +1,30 @@
 package org.lingsync.elicitation.collection;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.VideoView;
 
 public class SessionAccess extends FragmentActivity {
 	private static final int VIDEO_GALLERY_VIEW_ID = Menu.FIRST;
 	private static final int SESSION_LIST_VIEW_ID = Menu.FIRST + 1;
 	private static final int NEW_VIDEO_ID = Menu.FIRST + 2;
-	private static final int UPLOAD_VIDEO_ID = Menu.FIRST + 3;
 	private static final int RECORD_VIDEO = 0;
-	public static final String EXTRA_FILEPATH = "extra_file_path";
-	public static final String EXTRA_FILENAME = "fileName";
 	private EditText mRow_IDText;
+	private BroadcastReceiver receiver;
 
 	VideoThumbnailFragment videoThumbnailFragment;
 	String rowID;
@@ -36,6 +37,24 @@ public class SessionAccess extends FragmentActivity {
 
 		mRow_IDText = (EditText) findViewById(R.id.row_id);
 		rowID = mRow_IDText.getText().toString();
+
+		// Listen for video upload completion
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(PrivateConstants.VIDEO_UPLOADED);
+
+		receiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				Log.v(PrivateConstants.TAG, "Video upload complete.");
+				videoThumbnailFragment = (VideoThumbnailFragment) getSupportFragmentManager()
+						.findFragmentById(R.id.videoThumbnailFragment);
+				if (videoThumbnailFragment.isInLayout()) {
+					videoThumbnailFragment.updateThumbnails(context);
+				}
+			}
+		};
+
+		registerReceiver(receiver, filter);
 	}
 
 	@Override
@@ -44,7 +63,6 @@ public class SessionAccess extends FragmentActivity {
 		menu.add(0, VIDEO_GALLERY_VIEW_ID, 0, R.string.menu_view_video_gallery);
 		menu.add(0, SESSION_LIST_VIEW_ID, 0, R.string.menu_view_session_list);
 		menu.add(0, NEW_VIDEO_ID, 0, R.string.menu_new_video);
-		menu.add(0, UPLOAD_VIDEO_ID, 0, R.string.menu_upload_video);
 		return true;
 	}
 
@@ -59,9 +77,6 @@ public class SessionAccess extends FragmentActivity {
 			return true;
 		case NEW_VIDEO_ID:
 			recordVideo();
-			return true;
-		case UPLOAD_VIDEO_ID:
-			uploadVideo();
 			return true;
 		}
 		return super.onMenuItemSelected(featureId, item);
@@ -113,53 +128,6 @@ public class SessionAccess extends FragmentActivity {
 
 	}
 
-	public void uploadVideo() {
-		String fileName;
-		try {
-			VideoView videoView = (VideoView) findViewById(R.id.IVDisplay);
-			fileName = videoView.getTag().toString();
-		} catch (Exception e) {
-			AlertDialog.Builder alert = new AlertDialog.Builder(this);
-			alert.setTitle(R.string.notification);
-			alert.setMessage(R.string.dialog_select_video);
-
-			alert.setPositiveButton(R.string.ok,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog,
-								int whichButton) {
-							dialog.cancel();
-						}
-					});
-			AlertDialog alertDialog = alert.create();
-			alertDialog.show();
-			return;
-		}
-
-		// Find video file in MediaStore
-		ContentResolver cr = getContentResolver();
-		Uri videosUri = MediaStore.Video.Media.getContentUri("external");
-		String[] projection = { MediaStore.Video.VideoColumns.DATA };
-		Cursor cursor;
-		try {
-			cursor = cr.query(videosUri, projection,
-					MediaStore.Video.VideoColumns.TITLE + " LIKE ?",
-					new String[] { fileName }, null);
-
-			cursor.moveToFirst();
-		} catch (Exception e) {
-			return;
-		}
-		int columnIndex = cursor.getColumnIndex(projection[0]);
-		String filePath = cursor.getString(columnIndex);
-		cursor.close();
-
-		Intent uploadVideo = new Intent(getApplicationContext(),
-				UploadVideo.class);
-		uploadVideo.putExtra(EXTRA_FILEPATH, filePath);
-		uploadVideo.putExtra(EXTRA_FILENAME, fileName);
-		startService(uploadVideo);
-	}
-
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -197,4 +165,18 @@ public class SessionAccess extends FragmentActivity {
 			playVideoFragment.setVideo(videoTitle);
 		}
 	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		unregisterReceiver(receiver);
+	}
+	// public void callUpdateThumbnails() {
+	// VideoThumbnailFragment videoThumbnailFragment = (VideoThumbnailFragment)
+	// getSupportFragmentManager().findFragmentById(R.id.videoThumbnailFragment);
+	// if (videoThumbnailFragment.isInLayout()) {
+	// videoThumbnailFragment.updateThumbnails(this);
+	// }
+	// }
+
 }

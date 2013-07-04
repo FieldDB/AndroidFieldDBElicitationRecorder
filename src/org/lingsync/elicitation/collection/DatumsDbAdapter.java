@@ -159,7 +159,7 @@ public class DatumsDbAdapter {
 					KEY_FIELD4, KEY_FIELD5 }, KEY_ROWID + "=" + rowId, null,
 					null, null, null, null);
 		} catch (Exception e) {
-			Log.v("TEST", "Error retrieving requested database record " + rowId);
+			Log.v(PrivateConstants.TAG, "Error retrieving requested database record " + rowId);
 			return null;
 		}
 		if (mCursor != null) {

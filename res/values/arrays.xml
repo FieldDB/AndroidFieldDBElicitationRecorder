@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="video_options">
+        <item>Upload Video</item>
+        <item>Open Results URL</item>
+        <item>Share Results URL</item>
+        <item>Delete Video</item>
+        <item>Cancel</item>
+    </string-array>
+
+</resources>

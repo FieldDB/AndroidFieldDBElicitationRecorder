@@ -65,7 +65,7 @@ public class PlayVideoFragment extends Fragment {
 		Display.setVideoURI(vidUri);
 		Display.requestFocus();
 		Display.bringToFront();
-		Display.setTag(tag);
+		Display.setTag(R.id.VIDEO_FILENAME_TAG_KEY, tag);
 		Display.start();
 	}
 

@@ -35,8 +35,6 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 public class UploadVideo extends IntentService {
-	String TAG = "TEST";
-
 	public UploadVideo() {
 		super("UploadVideo");
 	}
@@ -52,9 +50,9 @@ public class UploadVideo extends IntentService {
 
 		// Get intent extras here
 		String fileName = uploadIntent.getExtras().getString(
-				SessionAccess.EXTRA_FILENAME);
+				PrivateConstants.EXTRA_FILENAME);
 		String dataFile = uploadIntent.getExtras().getString(
-				SessionAccess.EXTRA_FILEPATH);
+				PrivateConstants.EXTRA_FILEPATH);
 
 		// Check for well-formed extras
 
@@ -99,7 +97,7 @@ public class UploadVideo extends IntentService {
 			entity.addPart("videoFileName", new StringBody(fileName,
 					"text/plain", Charset.forName("UTF-8")));
 		} catch (UnsupportedEncodingException e) {
-			Log.d(TAG,
+			Log.d(PrivateConstants.TAG,
 					"Failed to add entity parts due to string encodinuserFriendlyMessageg UTF-8");
 			e.printStackTrace();
 		}
@@ -125,7 +123,7 @@ public class UploadVideo extends IntentService {
 				}
 			} while (newLine != null);
 
-			Log.v(TAG, "JSONResponse: " + JSONResponse);
+			Log.v(PrivateConstants.TAG, "JSONResponse: " + JSONResponse);
 			try {
 				JSONObject serverResponse = new JSONObject(JSONResponse);
 				try {
@@ -139,7 +137,9 @@ public class UploadVideo extends IntentService {
 						ContentResolver cr = getContentResolver();
 						Uri videosUri = MediaStore.Video.Media
 								.getContentUri("external");
-						String[] projection = { MediaStore.Video.VideoColumns.DATA, MediaStore.Video.VideoColumns._ID };
+						String[] projection = {
+								MediaStore.Video.VideoColumns.DATA,
+								MediaStore.Video.VideoColumns._ID };
 						Cursor cursor;
 						try {
 							cursor = cr.query(videosUri, projection,
@@ -151,30 +151,38 @@ public class UploadVideo extends IntentService {
 						} catch (Exception e) {
 							return;
 						}
-						Uri videoFileUri = Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, "" + cursor.getInt(cursor.getColumnIndex(MediaStore.Video.VideoColumns._ID)));
+						Uri videoFileUri = Uri
+								.withAppendedPath(
+										MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+										""
+												+ cursor.getInt(cursor
+														.getColumnIndex(MediaStore.Video.VideoColumns._ID)));
 						ContentValues values = new ContentValues(3);
 						values.put(MediaStore.Video.Media.TAGS,
 								uploadStatusMessage);
-						cr.update(videoFileUri,
-								values, null, null);
+						cr.update(videoFileUri, values, null, null);
 						cursor.close();
+						// ADD BROADCASTER TO UPDATE THUMBNAILS IN
+						// VIDEOTHUMBNAILFRAGMENT
+						Intent i = new Intent(PrivateConstants.VIDEO_UPLOADED);
+						sendBroadcast(i);
 					}
 				} catch (JSONException e) {
-					Log.d(TAG, "No successs message");
+					Log.d(PrivateConstants.TAG, "No successs message");
 					try {
 						if (serverResponse.get("error") != null) {
 							userFriendlyErrorMessage = (String) serverResponse
 									.get("error");
 						}
 					} catch (JSONException e2) {
-						Log.d(TAG, "No error message.");
+						Log.d(PrivateConstants.TAG, "No error message.");
 						e2.printStackTrace();
 						userFriendlyErrorMessage = getString(R.string.error_while_uploading)
 								+ " (20)";
 					}
 				}
 			} catch (JSONException e) {
-				Log.d(TAG, "Server errored in reply.");
+				Log.d(PrivateConstants.TAG, "Server errored in reply.");
 				e.printStackTrace();
 				userFriendlyErrorMessage = getString(R.string.error_while_uploading)
 						+ " (21)";
@@ -182,12 +190,12 @@ public class UploadVideo extends IntentService {
 		} catch (ClientProtocolException e) {
 			userFriendlyErrorMessage = getString(R.string.error_while_uploading)
 					+ " (22)";
-			Log.e(TAG, "ClientProtocolException.");
+			Log.e(PrivateConstants.TAG, "ClientProtocolException.");
 			e.printStackTrace();
 		} catch (IOException e) {
 			userFriendlyErrorMessage = getString(R.string.error_while_uploading)
 					+ " (23)";
-			Log.e(TAG, "IOException.");
+			Log.e(PrivateConstants.TAG, "IOException.");
 			e.printStackTrace();
 		}
 		/*
