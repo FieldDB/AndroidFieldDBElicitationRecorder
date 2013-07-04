@@ -32,6 +32,7 @@ import android.widget.LinearLayout;
 
 public class VideoThumbnailFragment extends Fragment {
 	private Long currentRowId;
+	protected String TAG = PrivateConstants.TAG;
 	LinearLayout carouselLayout;
 
 	// private BroadcastReceiver receiver;
@@ -82,7 +83,7 @@ public class VideoThumbnailFragment extends Fragment {
 					try {
 						rowID = Long.parseLong(videoTitleSubParts[3]);
 					} catch (Exception e) {
-						Log.v(PrivateConstants.TAG,
+						Log.v(TAG,
 								"Found a malformed video file." + videoTitle);
 						continue;
 					}
@@ -242,7 +243,7 @@ public class VideoThumbnailFragment extends Fragment {
 		Boolean wifiConnected = isConnected(getActivity());
 
 		if (isConnected(getActivity()) != true) {
-			Log.v(PrivateConstants.TAG, "Not connected to Wifi!");
+			Log.v(TAG, "Not connected to Wifi!");
 			AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 			alert.setTitle(R.string.notification);
 			alert.setMessage(R.string.not_connected_to_wifi);
@@ -306,7 +307,7 @@ public class VideoThumbnailFragment extends Fragment {
 				i.setData(Uri.parse(url));
 				startActivity(i);
 			} catch (Exception e) {
-				Log.v(PrivateConstants.TAG, "Error opening URL.");
+				Log.v(TAG, "Error opening URL.");
 				return;
 			}
 		} else {
@@ -336,7 +337,7 @@ public class VideoThumbnailFragment extends Fragment {
 				sendIntent.setType("text/plain");
 				startActivity(sendIntent);
 			} catch (Exception e) {
-				Log.v(PrivateConstants.TAG, "Error sharing URL.");
+				Log.v(TAG, "Error sharing URL.");
 				return;
 			}
 		} else {

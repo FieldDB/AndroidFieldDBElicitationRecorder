@@ -35,6 +35,8 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 public class UploadVideo extends IntentService {
+	protected String TAG = PrivateConstants.TAG;
+
 	public UploadVideo() {
 		super("UploadVideo");
 	}
@@ -56,8 +58,7 @@ public class UploadVideo extends IntentService {
 
 		// Check for well-formed extras
 		if (fileName == null || dataFile == null) {
-			Log.e(PrivateConstants.TAG,
-					"Invalid call to UploadVideo intent service.");
+			Log.e(TAG, "Invalid call to UploadVideo intent service.");
 			return;
 		}
 
@@ -103,7 +104,7 @@ public class UploadVideo extends IntentService {
 			entity.addPart("videoFileName", new StringBody(fileName,
 					"text/plain", Charset.forName("UTF-8")));
 		} catch (UnsupportedEncodingException e) {
-			Log.d(PrivateConstants.TAG,
+			Log.d(TAG,
 					"Failed to add entity parts due to string encodinuserFriendlyMessageg UTF-8");
 			e.printStackTrace();
 		}
@@ -129,7 +130,7 @@ public class UploadVideo extends IntentService {
 				}
 			} while (newLine != null);
 
-			Log.v(PrivateConstants.TAG, "JSONResponse: " + JSONResponse);
+			Log.v(TAG, "JSONResponse: " + JSONResponse);
 			try {
 				JSONObject serverResponse = new JSONObject(JSONResponse);
 				try {
@@ -174,21 +175,21 @@ public class UploadVideo extends IntentService {
 						sendBroadcast(i);
 					}
 				} catch (JSONException e) {
-					Log.d(PrivateConstants.TAG, "No successs message");
+					Log.d(TAG, "No successs message");
 					try {
 						if (serverResponse.get("error") != null) {
 							userFriendlyErrorMessage = (String) serverResponse
 									.get("error");
 						}
 					} catch (JSONException e2) {
-						Log.d(PrivateConstants.TAG, "No error message.");
+						Log.d(TAG, "No error message.");
 						e2.printStackTrace();
 						userFriendlyErrorMessage = getString(R.string.error_while_uploading)
 								+ " (20)";
 					}
 				}
 			} catch (JSONException e) {
-				Log.d(PrivateConstants.TAG, "Server errored in reply.");
+				Log.d(TAG, "Server errored in reply.");
 				e.printStackTrace();
 				userFriendlyErrorMessage = getString(R.string.error_while_uploading)
 						+ " (21)";
@@ -196,12 +197,12 @@ public class UploadVideo extends IntentService {
 		} catch (ClientProtocolException e) {
 			userFriendlyErrorMessage = getString(R.string.error_while_uploading)
 					+ " (22)";
-			Log.e(PrivateConstants.TAG, "ClientProtocolException.");
+			Log.e(TAG, "ClientProtocolException.");
 			e.printStackTrace();
 		} catch (IOException e) {
 			userFriendlyErrorMessage = getString(R.string.error_while_uploading)
 					+ " (23)";
-			Log.e(PrivateConstants.TAG, "IOException.");
+			Log.e(TAG, "IOException.");
 			e.printStackTrace();
 		}
 		/*

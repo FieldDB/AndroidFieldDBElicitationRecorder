@@ -29,6 +29,8 @@ public class SessionAccess extends FragmentActivity {
 	private BroadcastReceiver receiver;
 	private DeviceDetails mDeviceDetails;
 	private Boolean D = true;
+	protected String TAG = PrivateConstants.TAG;
+
 
 	VideoThumbnailFragment videoThumbnailFragment;
 	String rowID;
@@ -49,7 +51,7 @@ public class SessionAccess extends FragmentActivity {
 		receiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				Log.v(PrivateConstants.TAG, "Video upload complete.");
+				Log.v(TAG, "Video upload complete.");
 				videoThumbnailFragment = (VideoThumbnailFragment) getSupportFragmentManager()
 						.findFragmentById(R.id.videoThumbnailFragment);
 				if (videoThumbnailFragment.isInLayout()) {
@@ -137,7 +139,7 @@ public class SessionAccess extends FragmentActivity {
 
 	public String getHardwareDetails() {
 		if (mDeviceDetails == null) {
-			mDeviceDetails = new DeviceDetails(this, D, PrivateConstants.TAG);
+			mDeviceDetails = new DeviceDetails(this, D, TAG);
 		}
 		String deviceType = mDeviceDetails.getCurrentDeviceDetails();
 		return deviceType;
