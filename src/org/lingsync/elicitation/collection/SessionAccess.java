@@ -27,6 +27,8 @@ public class SessionAccess extends FragmentActivity {
 	private static final int RECORD_VIDEO = 0;
 	private EditText mRow_IDText;
 	private BroadcastReceiver receiver;
+	private DeviceDetails mDeviceDetails;
+	private Boolean D = true;
 
 	VideoThumbnailFragment videoThumbnailFragment;
 	String rowID;
@@ -116,10 +118,12 @@ public class SessionAccess extends FragmentActivity {
 			return;
 		}
 
+		String deviceDetails = getHardwareDetails();
 		String time = String.valueOf(System.currentTimeMillis());
 		String video_filename = "fielddb_session_" + time + "_" + rowID
 				+ ".3gp";
-		ContentValues values = new ContentValues();
+		ContentValues values = new ContentValues(2);
+		values.put(MediaStore.Video.Media.DESCRIPTION, deviceDetails);
 		values.put(MediaStore.Video.Media.TITLE, video_filename);
 		cameraVideoURI = getContentResolver().insert(
 				MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
@@ -129,6 +133,14 @@ public class SessionAccess extends FragmentActivity {
 		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
 		startActivityForResult(intent, RECORD_VIDEO);
 
+	}
+
+	public String getHardwareDetails() {
+		if (mDeviceDetails == null) {
+			mDeviceDetails = new DeviceDetails(this, D, PrivateConstants.TAG);
+		}
+		String deviceType = mDeviceDetails.getCurrentDeviceDetails();
+		return deviceType;
 	}
 
 	@Override
