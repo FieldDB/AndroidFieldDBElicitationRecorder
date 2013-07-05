@@ -119,12 +119,10 @@ public class SessionAccess extends FragmentActivity {
 			return;
 		}
 
-		String deviceDetails = getHardwareDetails();
 		String time = String.valueOf(System.currentTimeMillis());
 		String video_filename = "fielddb_session_" + time + "_" + rowID
 				+ ".3gp";
-		ContentValues values = new ContentValues(2);
-		values.put(MediaStore.Video.Media.DESCRIPTION, deviceDetails);
+		ContentValues values = new ContentValues(1);
 		values.put(MediaStore.Video.Media.TITLE, video_filename);
 		cameraVideoURI = getContentResolver().insert(
 				MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
@@ -149,31 +147,39 @@ public class SessionAccess extends FragmentActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == RECORD_VIDEO && resultCode != 0
 				&& data.getData() != null) {
+
 			ContentResolver cr = getContentResolver();
-
 			Cursor cursor;
-
-			String[] projection = { MediaStore.Video.Media.DATA,
-					MediaStore.Video.Media.SIZE, MediaStore.Video.Media.TITLE };
+			String[] projection = { MediaStore.Video.Media.TITLE,
+					MediaStore.Video.VideoColumns._ID };
 			try {
 				cursor = cr.query(cameraVideoURI, projection, null, null, null);
 			} catch (Exception e) {
 				return;
 			}
 
-			int column_index_data = cursor
-					.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
 			int videoTitleIndex = cursor
 					.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE);
 			cursor.moveToFirst();
-			String recordedVideoFilePath = cursor.getString(column_index_data);
+
+			ContentValues values = new ContentValues(2);
+			String deviceDetails = getHardwareDetails();
 			String videoTitle = cursor.getString(videoTitleIndex);
-			Uri fileUri = Uri.parse(recordedVideoFilePath);
+			values.put(MediaStore.Video.Media.TITLE, videoTitle);
+			values.put(MediaStore.Video.Media.DESCRIPTION, deviceDetails);
+			Uri videoFileUri = Uri
+					.withAppendedPath(
+							MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+							""
+									+ cursor.getInt(cursor
+											.getColumnIndex(MediaStore.Video.VideoColumns._ID)));
+
+			cr.update(videoFileUri, values, null, null);
 			cursor.close();
 			// Broadcast to media scanner that new file is present so that
 			// thumbnails will be updated
 			sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
-					fileUri));
+					videoFileUri));
 
 			// Set new video to be played in fragment
 			PlayVideoFragment playVideoFragment = (PlayVideoFragment) getSupportFragmentManager()
