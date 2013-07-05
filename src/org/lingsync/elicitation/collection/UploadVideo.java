@@ -15,6 +15,7 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.json.JSONException;
@@ -85,7 +86,8 @@ public class UploadVideo extends IntentService {
 		notifyUser(uploadStatusMessage, noti, notificationId, false);
 
 		/* Actually uploads the video */
-		HttpClient httpClient = new SecureHttpClient(getApplicationContext());
+//		HttpClient httpClient = new SecureHttpClient(getApplicationContext());
+		HttpClient httpClient = new DefaultHttpClient();
 
 		HttpContext localContext = new BasicHttpContext();
 		String token = PrivateConstants.SERVER_TOKEN;
@@ -145,7 +147,7 @@ public class UploadVideo extends IntentService {
 						Uri videosUri = MediaStore.Video.Media
 								.getContentUri("external");
 						String[] projection = {
-								MediaStore.Video.VideoColumns.DATA,
+								MediaStore.Video.Media.DATA,
 								MediaStore.Video.VideoColumns._ID };
 						Cursor cursor;
 						try {
@@ -158,19 +160,14 @@ public class UploadVideo extends IntentService {
 						} catch (Exception e) {
 							return;
 						}
-						Uri videoFileUri = Uri
-								.withAppendedPath(
-										MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-										""
-												+ cursor.getInt(cursor
-														.getColumnIndex(MediaStore.Video.VideoColumns._ID)));
-						ContentValues values = new ContentValues(3);
-						values.put(MediaStore.Video.Media.TAGS,
+						ContentValues values = new ContentValues(1);
+						
+						String videoFilePath = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA)); 
+						Uri videoUri = Uri.parse(videoFilePath);
+						values.put(MediaStore.Video.VideoColumns.TAGS,
 								uploadStatusMessage);
-						cr.update(videoFileUri, values, null, null);
+						cr.insert(videoUri, values);
 						cursor.close();
-						// ADD BROADCASTER TO UPDATE THUMBNAILS IN
-						// VIDEOTHUMBNAILFRAGMENT
 						Intent i = new Intent(PrivateConstants.VIDEO_UPLOADED);
 						sendBroadcast(i);
 					}

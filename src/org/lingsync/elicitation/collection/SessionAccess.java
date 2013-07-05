@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -119,16 +120,16 @@ public class SessionAccess extends FragmentActivity {
 			return;
 		}
 
-		String time = String.valueOf(System.currentTimeMillis());
-		String video_filename = "fielddb_session_" + time + "_" + rowID
-				+ ".3gp";
-		ContentValues values = new ContentValues(1);
-		values.put(MediaStore.Video.Media.TITLE, video_filename);
-		cameraVideoURI = getContentResolver().insert(
-				MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
+//		String time = String.valueOf(System.currentTimeMillis());
+//		String video_filename = "fielddb_session_" + time + "_" + rowID
+//				+ ".3gp";
+//		ContentValues values = new ContentValues(1);
+//		values.put(MediaStore.Video.VideoColumns.TITLE, video_filename);
+//		cameraVideoURI = getContentResolver().insert(
+//				MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
 
 		Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraVideoURI);
+//		intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraVideoURI);
 		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
 		startActivityForResult(intent, RECORD_VIDEO);
 
@@ -148,39 +149,53 @@ public class SessionAccess extends FragmentActivity {
 		if (requestCode == RECORD_VIDEO && resultCode != 0
 				&& data.getData() != null) {
 
+			String videoID = data.getData().getLastPathSegment();
+
 			ContentResolver cr = getContentResolver();
 			Cursor cursor;
-			String[] projection = { MediaStore.Video.Media.TITLE,
+			String[] projection = { BaseColumns._ID, MediaStore.Video.Media.DATA, MediaStore.Video.VideoColumns.TITLE,
 					MediaStore.Video.VideoColumns._ID };
 			try {
-				cursor = cr.query(cameraVideoURI, projection, null, null, null);
+				cursor = cr.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, projection,
+				MediaStore.Video.VideoColumns._ID
+						+ " LIKE ?",
+						new String[] { videoID }, null);
 			} catch (Exception e) {
 				return;
 			}
 
 			int videoTitleIndex = cursor
-					.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE);
+					.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.TITLE);
 			cursor.moveToFirst();
 
-			ContentValues values = new ContentValues(2);
+			ContentValues values = new ContentValues(3);
+			
+			// Declare values
 			String deviceDetails = getHardwareDetails();
-			String videoTitle = cursor.getString(videoTitleIndex);
-			values.put(MediaStore.Video.Media.TITLE, videoTitle);
-			values.put(MediaStore.Video.Media.DESCRIPTION, deviceDetails);
-			Uri videoFileUri = Uri
+			String time = String.valueOf(System.currentTimeMillis());
+			String videoTitle = "fielddb_session_" + time + "_" + rowID
+					+ ".3gp";
+			String videoFilePath = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA)); 
+
+			//Set values
+			values.put(MediaStore.Video.VideoColumns.TITLE, videoTitle);
+			values.put(MediaStore.Video.VideoColumns.DESCRIPTION, deviceDetails);
+			
+			values.put(MediaStore.Video.Media.DATA, videoFilePath);
+		    
+		    Uri videoFileUri = Uri
 					.withAppendedPath(
 							MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
 							""
 									+ cursor.getInt(cursor
-											.getColumnIndex(MediaStore.Video.VideoColumns._ID)));
-
-			cr.update(videoFileUri, values, null, null);
+											.getColumnIndex(MediaStore.Video.Media._ID)));
+		    
+		    cr.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
 			cursor.close();
-			// Broadcast to media scanner that new file is present so that
-			// thumbnails will be updated
-			sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
-					videoFileUri));
+		    Log.v(TAG, "videoFileUri " + videoFileUri.toString());
 
+			new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, videoFileUri);
+			
 			// Set new video to be played in fragment
 			PlayVideoFragment playVideoFragment = (PlayVideoFragment) getSupportFragmentManager()
 					.findFragmentById(R.id.playVideoFragment);

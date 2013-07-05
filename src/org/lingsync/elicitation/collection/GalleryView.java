@@ -90,7 +90,9 @@ public class GalleryView extends Activity {
 	public void populateVideoPreview() {
 		// Query for all videos on external storage
 		ContentResolver cr = getContentResolver();
-		String[] proj = { BaseColumns._ID, MediaStore.Video.Media.TITLE };
+		String[] proj = { BaseColumns._ID, MediaStore.Video.Media.DATA,
+				MediaStore.Video.VideoColumns.TITLE,
+				MediaStore.Video.VideoColumns._ID };
 
 		Cursor c = cr.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, proj,
 				null, null, null);
@@ -99,8 +101,10 @@ public class GalleryView extends Activity {
 			do {
 				int id = c.getInt(0);
 				int videoTitleIndex = c
-						.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE);
+						.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.TITLE);
 				String videoTitle = c.getString(videoTitleIndex);
+				Log.v(TAG, "videoTitle is " + videoTitle);
+
 				String[] videoTitleParts = videoTitle.split("[.]");
 				String[] videoTitleSubParts = videoTitleParts[0].split("_");
 
@@ -115,6 +119,11 @@ public class GalleryView extends Activity {
 					} catch (Exception e) {
 						Log.v(TAG, "Found a malformed video file. "
 								+ videoTitle);
+						continue;
+					}
+
+					if (b == null) {
+						Log.v(TAG, "NO THUMBNAIL AVAILABLE!");
 						continue;
 					}
 

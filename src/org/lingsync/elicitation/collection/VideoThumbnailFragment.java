@@ -35,8 +35,6 @@ public class VideoThumbnailFragment extends Fragment {
 	protected String TAG;
 	LinearLayout carouselLayout;
 
-	// private BroadcastReceiver receiver;
-
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -63,8 +61,8 @@ public class VideoThumbnailFragment extends Fragment {
 
 		// Query for all videos on external storage
 		ContentResolver cr = getActivity().getContentResolver();
-		String[] proj = { BaseColumns._ID, MediaStore.Video.Media.TITLE,
-				MediaStore.Video.Media.TAGS };
+		String[] proj = { BaseColumns._ID, MediaStore.Video.VideoColumns.TITLE,
+				MediaStore.Video.VideoColumns.TAGS };
 
 		Cursor cursor = cr.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
 				proj, null, null, null);
@@ -74,7 +72,7 @@ public class VideoThumbnailFragment extends Fragment {
 			do {
 				int id = cursor.getInt(0);
 				int videoTitleIndex = cursor
-						.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE);
+						.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.TITLE);
 				String videoTitle = cursor.getString(videoTitleIndex);
 				String[] videoTitleParts = videoTitle.split("[.]");
 				String[] videoTitleSubParts = videoTitleParts[0].split("_");
@@ -94,7 +92,7 @@ public class VideoThumbnailFragment extends Fragment {
 
 						// Make thumbnails of uploaded videos rounded
 						int videoTagsIndex = cursor
-								.getColumnIndexOrThrow(MediaStore.Video.Media.TAGS);
+								.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.TAGS);
 						String externalVideoURL = cursor
 								.getString(videoTagsIndex);
 
@@ -231,6 +229,12 @@ public class VideoThumbnailFragment extends Fragment {
 								new String[] { "" + videoId });
 						cursor.close();
 						updateThumbnails(getActivity());
+					}
+				});
+		alert.setPositiveButton(R.string.cancel,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						dialog.cancel();
 					}
 				});
 		AlertDialog alertDialog = alert.create();
