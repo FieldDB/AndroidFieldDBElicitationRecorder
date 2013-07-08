@@ -21,12 +21,19 @@
         class="org.lingsync.elicitation.collection.PlayVideoFragment" >
     </fragment>
 
-    <fragment
-        android:id="@+id/videoThumbnailFragment"
+    <LinearLayout
+        android:id="@+id/videoThumbnailFragmentContainer"
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="20"
-        class="org.lingsync.elicitation.collection.VideoThumbnailFragment" >
-    </fragment>
+        android:orientation="horizontal" >
+
+        <fragment
+            android:id="@+id/videoThumbnailFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            class="org.lingsync.elicitation.collection.VideoThumbnailFragment" >
+        </fragment>
+    </LinearLayout>
 
 </LinearLayout>

@@ -1,5 +1,6 @@
 package org.lingsync.elicitation.collection;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -34,6 +35,7 @@ public class VideoThumbnailFragment extends Fragment {
 	private Long currentRowId;
 	protected String TAG;
 	LinearLayout carouselLayout;
+	SessionRecorderPublicInterface mCallback;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,6 +58,20 @@ public class VideoThumbnailFragment extends Fragment {
 		return view;
 	}
 
+	@Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            mCallback = (SessionRecorderPublicInterface) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnHeadlineSelectedListener");
+        }
+    }
+	
 	public void updateThumbnails(Context c) {
 		carouselLayout.removeAllViews();
 
@@ -95,7 +111,7 @@ public class VideoThumbnailFragment extends Fragment {
 								.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.TAGS);
 						String externalVideoURL = cursor
 								.getString(videoTagsIndex);
-
+						
 						if (externalVideoURL != null) {
 							b = getRoundedCornerBitmap(b, 40);
 							thumbnail.setTag(R.id.VIDEO_URL_TAG_KEY,
@@ -113,7 +129,7 @@ public class VideoThumbnailFragment extends Fragment {
 						thumbnail
 								.setOnLongClickListener(new OnLongClickListener() {
 
-									// Delete video on long click
+									// Show video options on long click
 									@Override
 									public boolean onLongClick(View v) {
 
@@ -184,6 +200,10 @@ public class VideoThumbnailFragment extends Fragment {
 					}
 				}
 			} while (cursor.moveToNext());
+			
+			//Hide thumbnail fragment if there are no thumbnails to show
+			int numberOfThumbnails = carouselLayout.getChildCount();
+			mCallback.showHideVideoDisplays(numberOfThumbnails);
 		}
 		cursor.close();
 	}
@@ -245,7 +265,7 @@ public class VideoThumbnailFragment extends Fragment {
 
 		Boolean wifiConnected = isConnected(getActivity());
 
-		if (isConnected(getActivity()) != true) {
+		if (wifiConnected != true) {
 			Log.v(TAG, "Not connected to Wifi!");
 			AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
 			alert.setTitle(R.string.notification);

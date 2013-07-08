@@ -14,14 +14,17 @@ import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import com.google.analytics.tracking.android.EasyTracker;
 
-public class SessionAccess extends FragmentActivity {
+public class SessionAccess extends FragmentActivity implements
+		SessionRecorderPublicInterface {
 	private static final int VIDEO_GALLERY_VIEW_ID = Menu.FIRST;
 	private static final int SESSION_LIST_VIEW_ID = Menu.FIRST + 1;
 	private static final int NEW_VIDEO_ID = Menu.FIRST + 2;
@@ -120,16 +123,7 @@ public class SessionAccess extends FragmentActivity {
 			return;
 		}
 
-//		String time = String.valueOf(System.currentTimeMillis());
-//		String video_filename = "fielddb_session_" + time + "_" + rowID
-//				+ ".3gp";
-//		ContentValues values = new ContentValues(1);
-//		values.put(MediaStore.Video.VideoColumns.TITLE, video_filename);
-//		cameraVideoURI = getContentResolver().insert(
-//				MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
-
 		Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-//		intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraVideoURI);
 		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
 		startActivityForResult(intent, RECORD_VIDEO);
 
@@ -153,49 +147,48 @@ public class SessionAccess extends FragmentActivity {
 
 			ContentResolver cr = getContentResolver();
 			Cursor cursor;
-			String[] projection = { BaseColumns._ID, MediaStore.Video.Media.DATA, MediaStore.Video.VideoColumns.TITLE,
+			String[] projection = { BaseColumns._ID,
+					MediaStore.Video.Media.DATA,
+					MediaStore.Video.VideoColumns.TITLE,
 					MediaStore.Video.VideoColumns._ID };
 			try {
-				cursor = cr.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, projection,
-				MediaStore.Video.VideoColumns._ID
-						+ " LIKE ?",
-						new String[] { videoID }, null);
+				cursor = cr.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+						projection, MediaStore.Video.VideoColumns._ID
+								+ " LIKE ?", new String[] { videoID }, null);
 			} catch (Exception e) {
 				return;
 			}
 
-			int videoTitleIndex = cursor
-					.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.TITLE);
 			cursor.moveToFirst();
 
 			ContentValues values = new ContentValues(3);
-			
+
 			// Declare values
 			String deviceDetails = getHardwareDetails();
 			String time = String.valueOf(System.currentTimeMillis());
 			String videoTitle = "fielddb_session_" + time + "_" + rowID
 					+ ".3gp";
-			String videoFilePath = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA)); 
+			String videoFilePath = cursor.getString(cursor
+					.getColumnIndex(MediaStore.Video.Media.DATA));
 
-			//Set values
+			// Set values
 			values.put(MediaStore.Video.VideoColumns.TITLE, videoTitle);
 			values.put(MediaStore.Video.VideoColumns.DESCRIPTION, deviceDetails);
-			
+
 			values.put(MediaStore.Video.Media.DATA, videoFilePath);
-		    
-		    Uri videoFileUri = Uri
+
+			Uri videoFileUri = Uri
 					.withAppendedPath(
 							MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
 							""
 									+ cursor.getInt(cursor
 											.getColumnIndex(MediaStore.Video.Media._ID)));
-		    
-		    cr.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
+
+			cr.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
 			cursor.close();
-		    Log.v(TAG, "videoFileUri " + videoFileUri.toString());
 
 			new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, videoFileUri);
-			
+
 			// Set new video to be played in fragment
 			PlayVideoFragment playVideoFragment = (PlayVideoFragment) getSupportFragmentManager()
 					.findFragmentById(R.id.playVideoFragment);
@@ -212,13 +205,29 @@ public class SessionAccess extends FragmentActivity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		EasyTracker.getInstance().activityStart(this); // Add this method.
+		EasyTracker.getInstance().activityStart(this);
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		EasyTracker.getInstance().activityStop(this); // Add this method.
+		EasyTracker.getInstance().activityStop(this);
+	}
+
+	// Public interface functions
+
+	public void showHideVideoDisplays(int numberOfThumbnails) {
+		PlayVideoFragment playVideoFragment = (PlayVideoFragment) getSupportFragmentManager()
+				.findFragmentById(R.id.playVideoFragment);
+		FragmentManager fm = getSupportFragmentManager();
+		LinearLayout videoThumbnailFragmentContainer = (LinearLayout) findViewById(R.id.videoThumbnailFragmentContainer);
+		if (numberOfThumbnails < 1) {
+			videoThumbnailFragmentContainer.setVisibility(LinearLayout.GONE);
+			fm.beginTransaction().hide(playVideoFragment).commit();
+		} else {
+			fm.beginTransaction().show(playVideoFragment).commit();
+			videoThumbnailFragmentContainer.setVisibility(LinearLayout.VISIBLE);
+		}
 	}
 
 }
