@@ -30,6 +30,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -144,14 +145,15 @@ public class UploadVideo extends IntentService {
 						// Add new metadata including url to audio files
 						// Find video file in MediaStore
 						ContentResolver cr = getContentResolver();
-						Uri videosUri = MediaStore.Video.Media
-								.getContentUri("external");
+
 						String[] projection = {
-								MediaStore.Video.Media.DATA,
-								MediaStore.Video.VideoColumns._ID };
+								BaseColumns._ID, MediaStore.Video.Media.DATA,
+								MediaStore.Video.VideoColumns.TITLE,
+								MediaStore.Video.VideoColumns.TAGS,
+								MediaStore.Video.Media._ID};
 						Cursor cursor;
 						try {
-							cursor = cr.query(videosUri, projection,
+							cursor = cr.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, projection,
 									MediaStore.Video.VideoColumns.TITLE
 											+ " LIKE ?",
 									new String[] { fileName }, null);
@@ -162,11 +164,17 @@ public class UploadVideo extends IntentService {
 						}
 						ContentValues values = new ContentValues(1);
 						
-						String videoFilePath = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA)); 
-						Uri videoUri = Uri.parse(videoFilePath);
 						values.put(MediaStore.Video.VideoColumns.TAGS,
 								uploadStatusMessage);
-						cr.insert(videoUri, values);
+					    
+						Uri videoFileUri = Uri
+								.withAppendedPath(
+										MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+										""
+												+ cursor.getInt(cursor
+														.getColumnIndex(MediaStore.Video.Media._ID)));
+						
+						cr.update(videoFileUri, values, null, null);
 						cursor.close();
 						Intent i = new Intent(PrivateConstants.VIDEO_UPLOADED);
 						sendBroadcast(i);
