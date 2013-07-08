@@ -113,7 +113,7 @@ public class DeviceDetails implements LocationListener {
 		locationManager = (LocationManager) mContext
 				.getSystemService(Context.LOCATION_SERVICE);
 		Criteria crta = new Criteria();
-		crta.setAccuracy(Criteria.ACCURACY_FINE);
+		crta.setAccuracy(Criteria.ACCURACY_COARSE);
 		crta.setAltitudeRequired(false);
 		crta.setBearingRequired(false);
 		crta.setCostAllowed(true);

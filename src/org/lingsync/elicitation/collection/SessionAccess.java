@@ -15,7 +15,6 @@ import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -34,6 +33,7 @@ public class SessionAccess extends FragmentActivity implements
 	private Boolean D = true;
 	public String TAG = PrivateConstants.TAG;
 
+	Boolean isRegistered = false;
 	String rowID;
 	Uri cameraVideoURI;
 
@@ -50,12 +50,11 @@ public class SessionAccess extends FragmentActivity implements
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Log.v(TAG, "Video upload complete.");
 			VideoThumbnailFragment videoThumbnailFragment = (VideoThumbnailFragment) getSupportFragmentManager()
 					.findFragmentById(R.id.videoThumbnailFragment);
-			// if (videoThumbnailFragment.isInLayout()) {
-			videoThumbnailFragment.updateThumbnails(context);
-			// }
+			if (videoThumbnailFragment.isInLayout()) {
+				videoThumbnailFragment.updateThumbnails(context);
+			}
 		}
 	};
 
@@ -191,8 +190,12 @@ public class SessionAccess extends FragmentActivity implements
 
 	@Override
 	public void onDestroy() {
+		if (isRegistered == true) {
+			unregisterReceiver(receiver);
+			isRegistered = false;
+		}
 		super.onDestroy();
-		unregisterReceiver(receiver);
+		
 	}
 
 	@Override
@@ -200,14 +203,18 @@ public class SessionAccess extends FragmentActivity implements
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(PrivateConstants.VIDEO_UPLOADED);
 		registerReceiver(receiver, filter);
+		isRegistered = true;
 		super.onResume();
 	}
 
-//	@Override
-//	protected void onPause() {
-//		unregisterReceiver(receiver);
-//		super.onPause();
-//	}
+	@Override
+	protected void onPause() {
+		if (isRegistered == true) {
+			unregisterReceiver(receiver);
+			isRegistered = false;
+		}
+		super.onPause();
+	}
 
 	@Override
 	public void onStart() {
