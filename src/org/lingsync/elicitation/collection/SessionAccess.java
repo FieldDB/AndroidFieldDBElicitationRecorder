@@ -44,25 +44,6 @@ public class SessionAccess extends FragmentActivity implements
 
 		mRow_IDText = (EditText) findViewById(R.id.row_id);
 		rowID = mRow_IDText.getText().toString();
-
-		// // Listen for video upload completion
-		// IntentFilter filter = new IntentFilter();
-		// filter.addAction(PrivateConstants.VIDEO_UPLOADED);
-		//
-		// BroadcastReceiver receiver = new BroadcastReceiver() {
-		// @Override
-		// public void onReceive(Context context, Intent intent) {
-		// Log.v(TAG, "Video upload complete.");
-		// VideoThumbnailFragment videoThumbnailFragment =
-		// (VideoThumbnailFragment) getSupportFragmentManager()
-		// .findFragmentById(R.id.videoThumbnailFragment);
-		// // if (videoThumbnailFragment.isInLayout()) {
-		// videoThumbnailFragment.updateThumbnails(context);
-		// // }
-		// }
-		// };
-		//
-		// registerReceiver(receiver, filter);
 	}
 
 	// Listen for video upload completion
