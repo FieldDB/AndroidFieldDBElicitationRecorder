@@ -30,12 +30,10 @@ public class SessionAccess extends FragmentActivity implements
 	private static final int NEW_VIDEO_ID = Menu.FIRST + 2;
 	private static final int RECORD_VIDEO = 0;
 	private EditText mRow_IDText;
-	private BroadcastReceiver receiver;
 	private DeviceDetails mDeviceDetails;
 	private Boolean D = true;
 	public String TAG = PrivateConstants.TAG;
 
-	VideoThumbnailFragment videoThumbnailFragment;
 	String rowID;
 	Uri cameraVideoURI;
 
@@ -47,24 +45,38 @@ public class SessionAccess extends FragmentActivity implements
 		mRow_IDText = (EditText) findViewById(R.id.row_id);
 		rowID = mRow_IDText.getText().toString();
 
-		// Listen for video upload completion
-		IntentFilter filter = new IntentFilter();
-		filter.addAction(PrivateConstants.VIDEO_UPLOADED);
-
-		receiver = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				Log.v(TAG, "Video upload complete.");
-				videoThumbnailFragment = (VideoThumbnailFragment) getSupportFragmentManager()
-						.findFragmentById(R.id.videoThumbnailFragment);
-				if (videoThumbnailFragment.isInLayout()) {
-					videoThumbnailFragment.updateThumbnails(context);
-				}
-			}
-		};
-
-		registerReceiver(receiver, filter);
+		// // Listen for video upload completion
+		// IntentFilter filter = new IntentFilter();
+		// filter.addAction(PrivateConstants.VIDEO_UPLOADED);
+		//
+		// BroadcastReceiver receiver = new BroadcastReceiver() {
+		// @Override
+		// public void onReceive(Context context, Intent intent) {
+		// Log.v(TAG, "Video upload complete.");
+		// VideoThumbnailFragment videoThumbnailFragment =
+		// (VideoThumbnailFragment) getSupportFragmentManager()
+		// .findFragmentById(R.id.videoThumbnailFragment);
+		// // if (videoThumbnailFragment.isInLayout()) {
+		// videoThumbnailFragment.updateThumbnails(context);
+		// // }
+		// }
+		// };
+		//
+		// registerReceiver(receiver, filter);
 	}
+
+	// Listen for video upload completion
+	private BroadcastReceiver receiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Log.v(TAG, "Video upload complete.");
+			VideoThumbnailFragment videoThumbnailFragment = (VideoThumbnailFragment) getSupportFragmentManager()
+					.findFragmentById(R.id.videoThumbnailFragment);
+			// if (videoThumbnailFragment.isInLayout()) {
+			videoThumbnailFragment.updateThumbnails(context);
+			// }
+		}
+	};
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -200,6 +212,20 @@ public class SessionAccess extends FragmentActivity implements
 	public void onDestroy() {
 		super.onDestroy();
 		unregisterReceiver(receiver);
+	}
+
+	@Override
+	protected void onResume() {
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(PrivateConstants.VIDEO_UPLOADED);
+		registerReceiver(receiver, filter);
+		super.onResume();
+	}
+
+	@Override
+	protected void onPause() {
+		unregisterReceiver(receiver);
+		super.onPause();
 	}
 
 	@Override

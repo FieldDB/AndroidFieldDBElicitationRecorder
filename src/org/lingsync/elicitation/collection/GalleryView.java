@@ -103,8 +103,6 @@ public class GalleryView extends Activity {
 				int videoTitleIndex = c
 						.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.TITLE);
 				String videoTitle = c.getString(videoTitleIndex);
-				Log.v(TAG, "videoTitle is " + videoTitle);
-
 				String[] videoTitleParts = videoTitle.split("[.]");
 				String[] videoTitleSubParts = videoTitleParts[0].split("_");
 
