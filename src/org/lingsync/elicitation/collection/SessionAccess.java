@@ -222,11 +222,11 @@ public class SessionAccess extends FragmentActivity implements
 		super.onResume();
 	}
 
-	@Override
-	protected void onPause() {
-		unregisterReceiver(receiver);
-		super.onPause();
-	}
+//	@Override
+//	protected void onPause() {
+//		unregisterReceiver(receiver);
+//		super.onPause();
+//	}
 
 	@Override
 	public void onStart() {
