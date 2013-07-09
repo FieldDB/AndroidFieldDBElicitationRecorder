@@ -23,7 +23,7 @@ public class GalleryView extends Activity {
 	public String TAG = PrivateConstants.TAG;
 	private static final int SESSION_LIST_VIEW_ID = Menu.FIRST;
 	private static final int NEW_SESSION_ID = Menu.FIRST + 1;
-	
+
 	private DatumsDbAdapter mDbHelper;
 
 	GridView gridView;
@@ -68,7 +68,21 @@ public class GalleryView extends Activity {
 								+ videoTitle);
 						continue;
 					}
-
+					// Test to make sure that a session file exists for the
+					// video file
+					mDbHelper = new DatumsDbAdapter(this);
+					mDbHelper.open();
+					Cursor note = mDbHelper.fetchNote(rowID);
+					mDbHelper.close();
+					String testString;
+					try {
+						testString = note
+								.getString(note
+										.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD1));
+					} catch (Exception e) {
+						// No session file
+						continue;
+					}
 					if (b == null) {
 						Log.v(TAG, "NO THUMBNAIL AVAILABLE!");
 						continue;
@@ -83,7 +97,7 @@ public class GalleryView extends Activity {
 		}
 		c.close();
 
-		//Test to see if there are any videos and display welcome screen if not
+		// Test to see if there are any videos and display welcome screen if not
 		int numberOfThumbnails = galleryImages.size();
 		if (numberOfThumbnails == 0) {
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
@@ -100,15 +114,15 @@ public class GalleryView extends Activity {
 			AlertDialog alertDialog = alert.create();
 			alertDialog.show();
 		}
-		
+
 		gridView = (GridView) findViewById(R.id.galleryGridView);
 
 		gridView.setAdapter(new GalleryImageAdapter(this, galleryImages,
 				galleryRowIds, galleryFileNames));
 
 		// Get device details
-		DeviceDetails mDeviceDetails = new DeviceDetails(this, true, TAG);
-		Log.v(TAG, mDeviceDetails.getCurrentDeviceDetails());
+		// DeviceDetails mDeviceDetails = new DeviceDetails(this, true, TAG);
+		// Log.v(TAG, mDeviceDetails.getCurrentDeviceDetails());
 
 	}
 
