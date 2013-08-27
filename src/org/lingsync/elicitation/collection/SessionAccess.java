@@ -1,5 +1,7 @@
 package org.lingsync.elicitation.collection;
 
+import java.io.File;
+
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -11,6 +13,7 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
@@ -30,6 +33,7 @@ public class SessionAccess extends FragmentActivity implements
 	private static final int RECORD_VIDEO = 0;
 	private EditText mRow_IDText;
 	private DeviceDetails mDeviceDetails;
+	private Uri fileUri;
 	private Boolean D = true;
 	public String TAG = PrivateConstants.TAG;
 
@@ -116,6 +120,23 @@ public class SessionAccess extends FragmentActivity implements
 		}
 
 		Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+		String time = String.valueOf(System.currentTimeMillis());
+
+		// Test to see if FieldDB video folder exists; if not, create it
+		File folder = new File(Environment.getExternalStorageDirectory()
+				+ "/fielddb_session_recorder");
+		if (!folder.exists()) {
+			folder.mkdir();
+		}
+
+		String videoTitle = (new StringBuilder())
+				.append(Environment.getExternalStorageDirectory())
+				.append("/fielddb_session_recorder/fielddb_session_" + time
+						+ "_" + rowID + ".3gp").toString();
+
+		File f = new File(videoTitle);
+		fileUri = Uri.fromFile(f);
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
 		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
 		startActivityForResult(intent, RECORD_VIDEO);
 
@@ -132,8 +153,8 @@ public class SessionAccess extends FragmentActivity implements
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == RECORD_VIDEO && resultCode != 0
-				&& data.getData() != null) {
+
+		if (requestCode == RECORD_VIDEO && resultCode != 0) {
 
 			String videoID = data.getData().getLastPathSegment();
 
@@ -155,36 +176,23 @@ public class SessionAccess extends FragmentActivity implements
 
 			ContentValues values = new ContentValues(3);
 
-			// Declare values
 			String deviceDetails = getHardwareDetails();
-			String time = String.valueOf(System.currentTimeMillis());
-			String videoTitle = "fielddb_session_" + time + "_" + rowID
-					+ ".3gp";
-			String videoFilePath = cursor.getString(cursor
-					.getColumnIndex(MediaStore.Video.Media.DATA));
 
 			// Set values
-			values.put(MediaStore.Video.VideoColumns.TITLE, videoTitle);
+			values.put(MediaStore.Video.VideoColumns.TITLE, videoID);
 			values.put(MediaStore.Video.VideoColumns.DESCRIPTION, deviceDetails);
 
-			values.put(MediaStore.Video.Media.DATA, videoFilePath);
-
-			Uri videoFileUri = Uri
-					.withAppendedPath(
-							MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-							""
-									+ cursor.getInt(cursor
-											.getColumnIndex(MediaStore.Video.Media._ID)));
+			values.put(MediaStore.Video.Media.DATA, fileUri.getPath());
 
 			cr.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
 			cursor.close();
 
-			new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, videoFileUri);
+			new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, fileUri);
 
 			// Set new video to be played in fragment
 			PlayVideoFragment playVideoFragment = (PlayVideoFragment) getSupportFragmentManager()
 					.findFragmentById(R.id.playVideoFragment);
-			playVideoFragment.setVideo(videoTitle);
+			playVideoFragment.setVideo(videoID);
 		}
 	}
 
@@ -195,7 +203,7 @@ public class SessionAccess extends FragmentActivity implements
 			isRegistered = false;
 		}
 		super.onDestroy();
-		
+
 	}
 
 	@Override

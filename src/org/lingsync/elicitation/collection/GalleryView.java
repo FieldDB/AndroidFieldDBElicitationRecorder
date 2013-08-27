@@ -91,7 +91,6 @@ public class GalleryView extends Activity {
 						galleryRowIds.add(rowID);
 						galleryFileNames.add(videoTitle);
 					}
-
 				}
 			} while (c.moveToNext());
 		}
@@ -121,8 +120,8 @@ public class GalleryView extends Activity {
 				galleryRowIds, galleryFileNames));
 
 		// Get device details
-		// DeviceDetails mDeviceDetails = new DeviceDetails(this, true, TAG);
-		// Log.v(TAG, mDeviceDetails.getCurrentDeviceDetails());
+		 DeviceDetails mDeviceDetails = new DeviceDetails(this, true, TAG);
+		 Log.v(TAG, mDeviceDetails.getCurrentDeviceDetails());
 
 	}
 
