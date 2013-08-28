@@ -1,6 +1,6 @@
 package org.lingsync.elicitation.collection;
 
-public class PrivateConstants {
+public class PrivateConstantsSample {
 	public final static String TAG = "FieldDB";
 	public final static String KEYSTORE_PASS = "hi";
 	public final static String VIDEO_UPLOADED = "there";
