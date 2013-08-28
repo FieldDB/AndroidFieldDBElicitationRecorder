@@ -74,7 +74,7 @@ public class VideoThumbnailFragment extends Fragment {
 	
 	public void updateThumbnails(Context c) {
 		carouselLayout.removeAllViews();
-
+		
 		// Query for all videos on external storage
 		ContentResolver cr = getActivity().getContentResolver();
 		String[] proj = { BaseColumns._ID, MediaStore.Video.VideoColumns.TITLE,

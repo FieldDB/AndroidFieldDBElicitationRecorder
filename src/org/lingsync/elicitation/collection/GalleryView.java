@@ -89,7 +89,7 @@ public class GalleryView extends Activity {
 					} else {
 						galleryImages.add(b);
 						galleryRowIds.add(rowID);
-						galleryFileNames.add(videoTitle);
+						galleryFileNames.add(videoTitle); 
 					}
 				}
 			} while (c.moveToNext());
