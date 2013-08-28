@@ -1,4 +1,6 @@
-package org.lingsync.elicitation.collection;
+package com.androidmontreal.weddingvideoguestbook;
+
+import org.lingsync.elicitation.collection.R;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;

@@ -26,7 +26,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="org.lingsync.elicitation.collection.SessionListView"
+            android:name="com.androidmontreal.weddingvideoguestbook.SessionListView"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,16 +34,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="org.lingsync.elicitation.collection.GalleryView" />
+        <activity android:name="com.androidmontreal.weddingvideoguestbook.GalleryView" />
         <activity
-            android:name="org.lingsync.elicitation.collection.SessionAccess"
+            android:name="com.androidmontreal.weddingvideoguestbook.SessionAccess"
             android:windowSoftInputMode="stateUnchanged" >
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </activity>
 
-        <service android:name="org.lingsync.elicitation.collection.UploadVideo" >
+        <service android:name="com.androidmontreal.weddingvideoguestbook.UploadVideo" >
         </service>
     </application>
 

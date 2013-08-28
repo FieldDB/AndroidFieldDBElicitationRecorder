@@ -1,4 +1,4 @@
-package org.lingsync.elicitation.collection;
+package com.androidmontreal.weddingvideoguestbook;
 
 public class PrivateConstantsSample {
 	public final static String TAG = "FieldDB";

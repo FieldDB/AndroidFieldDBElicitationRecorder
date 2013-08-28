@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="40"
-        class="org.lingsync.elicitation.collection.EditSessionFragment" >
+        class="com.androidmontreal.weddingvideoguestbook.EditSessionFragment" >
     </fragment>
 
     <fragment
@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="40"
-        class="org.lingsync.elicitation.collection.PlayVideoFragment" >
+        class="com.androidmontreal.weddingvideoguestbook.PlayVideoFragment" >
     </fragment>
 
     <LinearLayout
@@ -32,7 +32,7 @@
             android:id="@+id/videoThumbnailFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            class="org.lingsync.elicitation.collection.VideoThumbnailFragment" >
+            class="com.androidmontreal.weddingvideoguestbook.VideoThumbnailFragment" >
         </fragment>
     </LinearLayout>
 

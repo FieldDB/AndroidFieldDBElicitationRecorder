@@ -1,4 +1,4 @@
-package org.lingsync.elicitation.collection;
+package com.androidmontreal.weddingvideoguestbook;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

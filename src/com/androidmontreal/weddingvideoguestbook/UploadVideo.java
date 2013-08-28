@@ -1,4 +1,4 @@
-package org.lingsync.elicitation.collection;
+package com.androidmontreal.weddingvideoguestbook;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,6 +20,7 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.lingsync.elicitation.collection.R;
 
 import android.app.IntentService;
 import android.app.Notification;
