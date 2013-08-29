@@ -1,7 +1,5 @@
 package com.androidmontreal.weddingvideoguestbook;
 
-import org.lingsync.elicitation.collection.R;
-
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;

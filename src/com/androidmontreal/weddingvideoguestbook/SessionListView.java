@@ -2,8 +2,6 @@ package com.androidmontreal.weddingvideoguestbook;
 
 import java.io.File;
 
-import org.lingsync.elicitation.collection.R;
-
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.ContentResolver;

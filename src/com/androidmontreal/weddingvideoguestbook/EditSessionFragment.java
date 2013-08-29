@@ -1,7 +1,5 @@
 package com.androidmontreal.weddingvideoguestbook;
 
-import org.lingsync.elicitation.collection.R;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.database.Cursor;

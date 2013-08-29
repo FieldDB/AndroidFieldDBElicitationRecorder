@@ -2,8 +2,6 @@ package com.androidmontreal.weddingvideoguestbook;
 
 import java.util.ArrayList;
 
-import org.lingsync.elicitation.collection.R;
-
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
