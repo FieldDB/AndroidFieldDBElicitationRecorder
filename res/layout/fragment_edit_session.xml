@@ -67,6 +67,7 @@
                 android:id="@+id/field3"
                 style="@style/EditText"
                 android:layout_width="match_parent"
+                android:layout_height="100dp"
                 android:background="@drawable/custom_edit_text"
                 android:hint="@string/field3"
                 android:imeOptions="actionDone" />
@@ -80,7 +81,8 @@
                 android:layout_width="match_parent"
                 android:background="@drawable/custom_edit_text"
                 android:hint="@string/field4"
-                android:imeOptions="actionDone" />
+                android:imeOptions="actionDone"
+                android:visibility="gone" />
         </TableRow>
 
         <TableRow android:layout_width="match_parent" >
@@ -91,7 +93,8 @@
                 android:layout_width="match_parent"
                 android:background="@drawable/custom_edit_text"
                 android:hint="@string/field5"
-                android:imeOptions="actionDone" />
+                android:imeOptions="actionDone"
+                android:visibility="gone" />
         </TableRow>
 
         <TableRow android:layout_width="match_parent" >
