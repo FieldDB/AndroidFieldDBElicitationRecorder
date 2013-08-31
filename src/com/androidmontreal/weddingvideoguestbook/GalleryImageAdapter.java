@@ -110,7 +110,8 @@ public class GalleryImageAdapter extends BaseAdapter {
 					.findViewById(R.id.grid_item_image);
 
 			imageView.setImageBitmap(roundedThumbnail);
-			imageView.setBackground(d);
+			/* No such method on android 4.0 */
+//			imageView.setBackground(d);
 			imageView.setTag(R.id.VIDEO_FILENAME_TAG_KEY,
 					fileNames.get(position));
 			imageView.setOnClickListener(new View.OnClickListener() {
