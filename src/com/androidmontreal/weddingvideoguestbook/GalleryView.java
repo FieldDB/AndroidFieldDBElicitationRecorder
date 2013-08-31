@@ -55,7 +55,7 @@ public class GalleryView extends Activity {
 				String[] videoTitleParts = videoTitle.split("[.]");
 				String[] videoTitleSubParts = videoTitleParts[0].split("_");
 
-				if (videoTitleSubParts[0].equals("fielddb")) {
+				if (videoTitleSubParts[0].equals(PrivateConstants.DATA_KEYWORD)) {
 					// Get SQL session id (row id)
 					Long rowID;
 					Bitmap b;

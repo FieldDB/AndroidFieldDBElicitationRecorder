@@ -38,7 +38,7 @@ public class DatumsDbAdapter {
 	private static final String DATABASE_CREATE = "create table notes (_id integer primary key autoincrement, "
 			+ "couch_id text not null, field1 text not null, field2 text not null, field3 text not null, field4 text not null, field5 text not null);";
 
-	private static final String DATABASE_NAME = "fielddbsessions";
+	private static final String DATABASE_NAME = PrivateConstants.DATA_KEYWORD+"sessions";
 	private static final String DATABASE_TABLE = "notes";
 	private static final int DATABASE_VERSION = 2;
 
