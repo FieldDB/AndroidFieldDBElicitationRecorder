@@ -2,9 +2,10 @@
 
     <item
         android:id="@+id/action_new_video"
-        android:orderInCategory="100"
-        android:showAsAction="always"
         android:icon="@android:drawable/ic_menu_camera"
-        android:title="Refresh"/>
+        android:orderInCategory="100"
+        android:showAsAction="always|withText"
+        android:title="Nouveau vidéo"/>
    
-</menu> 
+
+</menu>

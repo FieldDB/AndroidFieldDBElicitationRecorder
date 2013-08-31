@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/action_new_video"
+        android:orderInCategory="100"
+        android:showAsAction="always|withText"
+        android:icon="@android:drawable/ic_menu_camera"
+        android:title="Enregistré votre message"/>
+     <item
+        android:id="@+id/action_video_gallery"
+        android:icon="@android:drawable/ic_menu_slideshow"
+        android:orderInCategory="100"
+        android:showAsAction="always|withText"
+        android:title="Page pincipale"/>
+   
+</menu> 
