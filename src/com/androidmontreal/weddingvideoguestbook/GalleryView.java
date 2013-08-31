@@ -14,6 +14,7 @@ import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.GridView;
 
@@ -127,23 +128,26 @@ public class GalleryView extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
-		menu.add(0, SESSION_LIST_VIEW_ID, 0, R.string.menu_view_session_list);
-		menu.add(0, NEW_SESSION_ID, 0, R.string.menu_new_session);
-		return true;
+		MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.mainmenu, menu);
+	    return true;
 	}
 
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+
 		switch (item.getItemId()) {
-		case SESSION_LIST_VIEW_ID:
-			showSessionList();
-			return true;
-		case NEW_SESSION_ID:
+		case R.id.action_new_video:
 			createNote();
-			return true;
+			break;
+
+		default:
+			break;
 		}
-		return super.onMenuItemSelected(featureId, item);
+
+		// return super.onMenuItemSelected(featureId, item);
+		return true;
+
 	}
 
 	public void showSessionList() {
