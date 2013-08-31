@@ -124,14 +124,14 @@ public class SessionAccess extends FragmentActivity implements
 
 		// Test to see if FieldDB video folder exists; if not, create it
 		File folder = new File(Environment.getExternalStorageDirectory()
-				+ "/fielddb_session_recorder");
+				+ "/wedding_guest_book");
 		if (!folder.exists()) {
 			folder.mkdir();
 		}
 
 		String videoTitle = (new StringBuilder())
 				.append(Environment.getExternalStorageDirectory())
-				.append("/fielddb_session_recorder/fielddb_session_" + time
+				.append("/wedding_guest_book/"+PrivateConstants.DATA_KEYWORD+"_session_" + time
 						+ "_" + rowID + ".3gp").toString();
 
 		File f = new File(videoTitle);
@@ -193,6 +193,14 @@ public class SessionAccess extends FragmentActivity implements
 			PlayVideoFragment playVideoFragment = (PlayVideoFragment) getSupportFragmentManager()
 					.findFragmentById(R.id.playVideoFragment);
 			playVideoFragment.setVideo(videoID);
+			
+			Intent uploadVideo = new Intent(getApplicationContext()
+					.getApplicationContext(), UploadVideo.class);
+			String filePath = fileUri.getPath();
+			String fileName = videoID;
+			uploadVideo.putExtra(PrivateConstants.EXTRA_FILENAME, fileName);
+			uploadVideo.putExtra(PrivateConstants.EXTRA_FILEPATH, filePath);
+			getApplicationContext().startService(uploadVideo);
 		}
 	}
 
