@@ -38,8 +38,17 @@ public class GalleryView extends Activity {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_gallery);
+	}
 
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
 		// Query for all videos on external storage
+		// TODO instead open all videos in the app's folder? or use the database
+		// to know the filenames
+		// TODO this wasnt showing the video we just recorded (onResume woudl
+		// improve this?)
 		ContentResolver cr = getContentResolver();
 		String[] proj = { BaseColumns._ID, MediaStore.Video.Media.DATA,
 				MediaStore.Video.VideoColumns.TITLE,
@@ -88,9 +97,11 @@ public class GalleryView extends Activity {
 						Log.v(TAG, "NO THUMBNAIL AVAILABLE!");
 						continue;
 					} else {
-						galleryImages.add(b);
-						galleryRowIds.add(rowID);
-						galleryFileNames.add(videoTitle); 
+						if (galleryFileNames.indexOf(videoTitle) == -1) {
+							galleryImages.add(b);
+							galleryRowIds.add(rowID);
+							galleryFileNames.add(videoTitle);
+						}
 					}
 				}
 			} while (c.moveToNext());
@@ -121,16 +132,16 @@ public class GalleryView extends Activity {
 				galleryRowIds, galleryFileNames));
 
 		// Get device details
-		 DeviceDetails mDeviceDetails = new DeviceDetails(this, true, TAG);
-		 Log.v(TAG, mDeviceDetails.getCurrentDeviceDetails());
+		DeviceDetails mDeviceDetails = new DeviceDetails(this, true, TAG);
+		Log.v(TAG, mDeviceDetails.getCurrentDeviceDetails());
 
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.mainmenu, menu);
-	    return true;
+		inflater.inflate(R.menu.mainmenu, menu);
+		return true;
 	}
 
 	@Override
