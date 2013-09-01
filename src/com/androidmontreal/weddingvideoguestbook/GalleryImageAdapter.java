@@ -17,6 +17,8 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.media.ThumbnailUtils;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -83,8 +85,10 @@ public class GalleryImageAdapter extends BaseAdapter {
 				return null;
 			}
 
-			Bitmap roundedThumbnail = getRoundedCornerBitmap(
-					galleryItems.get(position).getImage(), 30);
+			Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(galleryItems
+					.get(position).getThumbnailImagePath(),
+					MediaStore.Images.Thumbnails.MINI_KIND);
+			Bitmap roundedThumbnail = getRoundedCornerBitmap(thumbnail, 30);
 			Drawable d = context.getResources().getDrawable(
 					R.drawable.image_border);
 

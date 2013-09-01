@@ -67,10 +67,10 @@ public class GalleryView extends Activity {
 				if (videoTitleSubParts[0].equals(PrivateConstants.DATA_KEYWORD)) {
 					// Get SQL session id (row id)
 					Long rowID;
-					Bitmap b;
+					Bitmap thumbnail;
 					try {
 						rowID = Long.parseLong(videoTitleSubParts[3]);
-						b = MediaStore.Video.Thumbnails.getThumbnail(cr, id,
+						thumbnail = MediaStore.Video.Thumbnails.getThumbnail(cr, id,
 								MediaStore.Video.Thumbnails.MINI_KIND, null);
 					} catch (Exception e) {
 						Log.v(TAG, "Found a malformed video file. "
@@ -92,11 +92,13 @@ public class GalleryView extends Activity {
 						// No session file
 						continue;
 					}
-					if (b == null) {
+					if (thumbnail == null) {
 						Log.v(TAG, "NO THUMBNAIL AVAILABLE!");
-						continue;
+						//TODO why skip videos with no thumbnail yet, instead we can use a loading thumbnail...
+//						continue;
 					} else {
-						DBItem item = new DBItem(b, rowID, videoTitle);
+						String videoPath  =  c.getString(c.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DATA));
+						DBItem item = new DBItem(videoPath, rowID, videoTitle);
 						if (galleryItems.indexOf(item) == -1) {
 							galleryItems.add(item);
 						}
