@@ -8,7 +8,6 @@ import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
@@ -67,11 +66,8 @@ public class GalleryView extends Activity {
 				if (videoTitleSubParts[0].equals(PrivateConstants.DATA_KEYWORD)) {
 					// Get SQL session id (row id)
 					Long rowID;
-					Bitmap thumbnail;
 					try {
 						rowID = Long.parseLong(videoTitleSubParts[3]);
-						thumbnail = MediaStore.Video.Thumbnails.getThumbnail(cr, id,
-								MediaStore.Video.Thumbnails.MINI_KIND, null);
 					} catch (Exception e) {
 						Log.v(TAG, "Found a malformed video file. "
 								+ videoTitle);
@@ -92,16 +88,13 @@ public class GalleryView extends Activity {
 						// No session file
 						continue;
 					}
-					if (thumbnail == null) {
-						Log.v(TAG, "NO THUMBNAIL AVAILABLE!");
-						//TODO why skip videos with no thumbnail yet, instead we can use a loading thumbnail...
-//						continue;
-					} else {
-						String videoPath  =  c.getString(c.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DATA));
-						DBItem item = new DBItem(videoPath, rowID, videoTitle);
-						if (galleryItems.indexOf(item) == -1) {
-							galleryItems.add(item);
-						}
+
+					String videoPath = c
+							.getString(c
+									.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DATA));
+					DBItem item = new DBItem(videoPath, rowID, videoTitle);
+					if (galleryItems.indexOf(item) == -1) {
+						galleryItems.add(item);
 					}
 				}
 			} while (c.moveToNext());
