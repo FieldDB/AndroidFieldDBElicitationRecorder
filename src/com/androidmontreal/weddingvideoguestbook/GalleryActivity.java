@@ -1,5 +1,6 @@
 package com.androidmontreal.weddingvideoguestbook;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -8,8 +9,8 @@ import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -18,9 +19,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.GridView;
 
+import com.androidmontreal.weddingvideoguestbook.db.DBItem;
 import com.google.analytics.tracking.android.EasyTracker;
 
-public class GalleryView extends Activity {
+public class GalleryActivity extends Activity {
 	public String TAG = PrivateConstants.TAG;
 	private static final int SESSION_LIST_VIEW_ID = Menu.FIRST;
 	private static final int NEW_SESSION_ID = Menu.FIRST + 1;
@@ -29,17 +31,25 @@ public class GalleryView extends Activity {
 
 	GridView gridView;
 
-	ArrayList<Bitmap> galleryImages = new ArrayList<Bitmap>();
-	ArrayList<Long> galleryRowIds = new ArrayList<Long>();
-	ArrayList<String> galleryFileNames = new ArrayList<String>();
-
+	ArrayList<DBItem> galleryItems = new ArrayList<DBItem>();
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_gallery);
+	}
 
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
 		// Query for all videos on external storage
+		// TODO instead open all videos in the app's folder? or use the database
+		// to know the filenames
+		// TODO this wasnt showing the video we just recorded (onResume woudl
+		// improve this?)
+
 		ContentResolver cr = getContentResolver();
 		String[] proj = { BaseColumns._ID, MediaStore.Video.Media.DATA,
 				MediaStore.Video.VideoColumns.TITLE,
@@ -59,11 +69,8 @@ public class GalleryView extends Activity {
 				if (videoTitleSubParts[0].equals(PrivateConstants.DATA_KEYWORD)) {
 					// Get SQL session id (row id)
 					Long rowID;
-					Bitmap b;
 					try {
 						rowID = Long.parseLong(videoTitleSubParts[3]);
-						b = MediaStore.Video.Thumbnails.getThumbnail(cr, id,
-								MediaStore.Video.Thumbnails.MINI_KIND, null);
 					} catch (Exception e) {
 						Log.v(TAG, "Found a malformed video file. "
 								+ videoTitle);
@@ -84,13 +91,13 @@ public class GalleryView extends Activity {
 						// No session file
 						continue;
 					}
-					if (b == null) {
-						Log.v(TAG, "NO THUMBNAIL AVAILABLE!");
-						continue;
-					} else {
-						galleryImages.add(b);
-						galleryRowIds.add(rowID);
-						galleryFileNames.add(videoTitle); 
+
+					String videoPath = c
+							.getString(c
+									.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DATA));
+					DBItem item = new DBItem(videoPath, rowID, videoTitle);
+					if (galleryItems.indexOf(item) == -1) {
+						galleryItems.add(item);
 					}
 				}
 			} while (c.moveToNext());
@@ -98,7 +105,7 @@ public class GalleryView extends Activity {
 		c.close();
 
 		// Test to see if there are any videos and display welcome screen if not
-		int numberOfThumbnails = galleryImages.size();
+		int numberOfThumbnails = galleryItems.size();
 		if (numberOfThumbnails == 0) {
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
 			alert.setTitle(R.string.notification);
@@ -117,20 +124,19 @@ public class GalleryView extends Activity {
 
 		gridView = (GridView) findViewById(R.id.galleryGridView);
 
-		gridView.setAdapter(new GalleryImageAdapter(this, galleryImages,
-				galleryRowIds, galleryFileNames));
+		gridView.setAdapter(new GalleryImageAdapter(this, galleryItems));
 
 		// Get device details
-		 DeviceDetails mDeviceDetails = new DeviceDetails(this, true, TAG);
-		 Log.v(TAG, mDeviceDetails.getCurrentDeviceDetails());
+		DeviceDetails mDeviceDetails = new DeviceDetails(this, true, TAG);
+		Log.v(TAG, mDeviceDetails.getCurrentDeviceDetails());
 
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.mainmenu, menu);
-	    return true;
+		inflater.inflate(R.menu.mainmenu, menu);
+		return true;
 	}
 
 	@Override

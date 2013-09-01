@@ -1,12 +1,19 @@
 package com.androidmontreal.weddingvideoguestbook;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+
+import com.androidmontreal.weddingvideoguestbook.db.DBItem;
 
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -14,7 +21,8 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
+import android.media.ThumbnailUtils;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,19 +33,14 @@ import android.widget.TextView;
 public class GalleryImageAdapter extends BaseAdapter {
 	public String TAG = PrivateConstants.TAG;
 	private Context context;
-	private final ArrayList<Bitmap> bitmaps;
-	private final ArrayList<Long> rowIds;
-	private final ArrayList<String> fileNames;
+	ArrayList<DBItem> galleryItems = new ArrayList<DBItem>();
 
 	private DatumsDbAdapter mDbHelper;
 	private Long rowId;
 
-	public GalleryImageAdapter(Context context, ArrayList<Bitmap> bitmaps,
-			ArrayList<Long> rowIds, ArrayList<String> fileNames) {
+	public GalleryImageAdapter(Context context, ArrayList<DBItem> galleryItems) {
 		this.context = context;
-		this.bitmaps = bitmaps;
-		this.rowIds = rowIds;
-		this.fileNames = fileNames;
+		this.galleryItems = galleryItems;
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -52,7 +55,7 @@ public class GalleryImageAdapter extends BaseAdapter {
 			gridView = new View(context);
 			gridView = inflater.inflate(R.layout.gallery_view_image, null);
 
-			rowId = rowIds.get(position);
+			rowId = galleryItems.get(position).getId();
 			mDbHelper = new DatumsDbAdapter(context);
 			mDbHelper.open();
 			Cursor note = mDbHelper.fetchNote(rowId);
@@ -86,10 +89,9 @@ public class GalleryImageAdapter extends BaseAdapter {
 				return null;
 			}
 
-			Bitmap roundedThumbnail = getRoundedCornerBitmap(
-					bitmaps.get(position), 30);
-			Drawable d = context.getResources().getDrawable(
-					R.drawable.image_border);
+			String thumbnailPath = galleryItems.get(position)
+					.getThumbnailImagePath().replace(".3gp", ".png");
+			Bitmap roundedThumbnail = getRoundedCornerBitmap(thumbnailPath, 30);
 
 			// Set value of textview
 			TextView textView = (TextView) gridView
@@ -109,11 +111,13 @@ public class GalleryImageAdapter extends BaseAdapter {
 			ImageView imageView = (ImageView) gridView
 					.findViewById(R.id.grid_item_image);
 
-			imageView.setImageBitmap(roundedThumbnail);
+			if (roundedThumbnail != null) {
+				imageView.setImageBitmap(roundedThumbnail);
+			}
 			/* No such method on android 4.0 */
-//			imageView.setBackground(d);
+			// imageView.setBackground(d);
 			imageView.setTag(R.id.VIDEO_FILENAME_TAG_KEY,
-					fileNames.get(position));
+					galleryItems.get(position).getFilename());
 			imageView.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
 					Intent accessSession = new Intent(v.getContext(),
@@ -134,7 +138,7 @@ public class GalleryImageAdapter extends BaseAdapter {
 
 	@Override
 	public int getCount() {
-		return bitmaps.size();
+		return galleryItems.size();
 	}
 
 	@Override
@@ -147,26 +151,53 @@ public class GalleryImageAdapter extends BaseAdapter {
 		return 0;
 	}
 
-	public static Bitmap getRoundedCornerBitmap(Bitmap bitmap, int pixels) {
-		Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
-				bitmap.getHeight(), Config.ARGB_8888);
-		Canvas canvas = new Canvas(output);
+	public static Bitmap getRoundedCornerBitmap(String thumbnailPath, int pixels) {
 
-		final int color = 0xff424242;
-		final Paint paint = new Paint();
-		final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-		final RectF rectF = new RectF(rect);
-		final float roundPx = pixels;
+		if (new File(thumbnailPath).exists()) {
+			return BitmapFactory.decodeFile(thumbnailPath);
+		} else {
+			// If it doesnt exist, create a rounded thumbnail for this video
+			// and save it
+			String videoPath = thumbnailPath.replace(".png", ".3gp");
 
-		paint.setAntiAlias(true);
-		canvas.drawARGB(0, 0, 0, 0);
-		paint.setColor(color);
-		canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+			Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(videoPath,
+					MediaStore.Images.Thumbnails.MINI_KIND);
 
-		paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
-		canvas.drawBitmap(bitmap, rect, rect, paint);
+			Bitmap roundedThumbnail = Bitmap.createBitmap(thumbnail.getWidth(),
+					thumbnail.getHeight(), Config.ARGB_8888);
+			Canvas canvas = new Canvas(roundedThumbnail);
 
-		return output;
+			final int color = 0xff424242;
+			final Paint paint = new Paint();
+			final Rect rect = new Rect(0, 0, thumbnail.getWidth(),
+					thumbnail.getHeight());
+			final RectF rectF = new RectF(rect);
+			final float roundPx = pixels;
+
+			paint.setAntiAlias(true);
+			canvas.drawARGB(0, 0, 0, 0);
+			paint.setColor(color);
+			canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+
+			paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
+			canvas.drawBitmap(thumbnail, rect, rect, paint);
+
+			File file = new File(thumbnailPath);
+			try {
+				FileOutputStream fOut = new FileOutputStream(file);
+				roundedThumbnail.compress(Bitmap.CompressFormat.PNG, 85, fOut);
+				fOut.flush();
+				fOut.close();
+
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			// return the rounded thumbnail regardless of whether we could save
+			// it.
+			return roundedThumbnail;
+		}
 	}
-
 }

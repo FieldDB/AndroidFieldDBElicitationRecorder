@@ -99,7 +99,7 @@ public class SessionAccess extends FragmentActivity implements
 	}
 
 	private void showVideoGallery() {
-		Intent i = new Intent(this, GalleryView.class);
+		Intent i = new Intent(this, GalleryActivity.class);
 		startActivity(i);
 		//TODO this should call finish otherwise we are stacking up activities
 	}
