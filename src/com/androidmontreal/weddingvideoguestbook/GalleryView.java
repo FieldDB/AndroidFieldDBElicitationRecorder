@@ -18,6 +18,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.GridView;
 
+import com.androidmontreal.weddingvideoguestbook.db.DBItem;
 import com.google.analytics.tracking.android.EasyTracker;
 
 public class GalleryView extends Activity {
@@ -29,10 +30,8 @@ public class GalleryView extends Activity {
 
 	GridView gridView;
 
-	ArrayList<Bitmap> galleryImages = new ArrayList<Bitmap>();
-	ArrayList<Long> galleryRowIds = new ArrayList<Long>();
-	ArrayList<String> galleryFileNames = new ArrayList<String>();
-
+	ArrayList<DBItem> galleryItems = new ArrayList<DBItem>();
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
@@ -97,10 +96,9 @@ public class GalleryView extends Activity {
 						Log.v(TAG, "NO THUMBNAIL AVAILABLE!");
 						continue;
 					} else {
-						if (galleryFileNames.indexOf(videoTitle) == -1) {
-							galleryImages.add(b);
-							galleryRowIds.add(rowID);
-							galleryFileNames.add(videoTitle);
+						DBItem item = new DBItem(b, rowID, videoTitle);
+						if (galleryItems.indexOf(item) == -1) {
+							galleryItems.add(item);
 						}
 					}
 				}
@@ -109,7 +107,7 @@ public class GalleryView extends Activity {
 		c.close();
 
 		// Test to see if there are any videos and display welcome screen if not
-		int numberOfThumbnails = galleryImages.size();
+		int numberOfThumbnails = galleryItems.size();
 		if (numberOfThumbnails == 0) {
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
 			alert.setTitle(R.string.notification);
@@ -128,8 +126,7 @@ public class GalleryView extends Activity {
 
 		gridView = (GridView) findViewById(R.id.galleryGridView);
 
-		gridView.setAdapter(new GalleryImageAdapter(this, galleryImages,
-				galleryRowIds, galleryFileNames));
+		gridView.setAdapter(new GalleryImageAdapter(this, galleryItems));
 
 		// Get device details
 		DeviceDetails mDeviceDetails = new DeviceDetails(this, true, TAG);

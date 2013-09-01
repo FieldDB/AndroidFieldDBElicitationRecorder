@@ -2,6 +2,8 @@ package com.androidmontreal.weddingvideoguestbook;
 
 import java.util.ArrayList;
 
+import com.androidmontreal.weddingvideoguestbook.db.DBItem;
+
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -25,19 +27,14 @@ import android.widget.TextView;
 public class GalleryImageAdapter extends BaseAdapter {
 	public String TAG = PrivateConstants.TAG;
 	private Context context;
-	private final ArrayList<Bitmap> bitmaps;
-	private final ArrayList<Long> rowIds;
-	private final ArrayList<String> fileNames;
+	ArrayList<DBItem> galleryItems = new ArrayList<DBItem>();
 
 	private DatumsDbAdapter mDbHelper;
 	private Long rowId;
 
-	public GalleryImageAdapter(Context context, ArrayList<Bitmap> bitmaps,
-			ArrayList<Long> rowIds, ArrayList<String> fileNames) {
+	public GalleryImageAdapter(Context context, ArrayList<DBItem> galleryItems) {
 		this.context = context;
-		this.bitmaps = bitmaps;
-		this.rowIds = rowIds;
-		this.fileNames = fileNames;
+		this.galleryItems = galleryItems;
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -52,7 +49,7 @@ public class GalleryImageAdapter extends BaseAdapter {
 			gridView = new View(context);
 			gridView = inflater.inflate(R.layout.gallery_view_image, null);
 
-			rowId = rowIds.get(position);
+			rowId = galleryItems.get(position).getId();
 			mDbHelper = new DatumsDbAdapter(context);
 			mDbHelper.open();
 			Cursor note = mDbHelper.fetchNote(rowId);
@@ -87,7 +84,7 @@ public class GalleryImageAdapter extends BaseAdapter {
 			}
 
 			Bitmap roundedThumbnail = getRoundedCornerBitmap(
-					bitmaps.get(position), 30);
+					galleryItems.get(position).getImage(), 30);
 			Drawable d = context.getResources().getDrawable(
 					R.drawable.image_border);
 
@@ -113,7 +110,7 @@ public class GalleryImageAdapter extends BaseAdapter {
 			/* No such method on android 4.0 */
 //			imageView.setBackground(d);
 			imageView.setTag(R.id.VIDEO_FILENAME_TAG_KEY,
-					fileNames.get(position));
+					galleryItems.get(position).getFilename());
 			imageView.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
 					Intent accessSession = new Intent(v.getContext(),
@@ -134,7 +131,7 @@ public class GalleryImageAdapter extends BaseAdapter {
 
 	@Override
 	public int getCount() {
-		return bitmaps.size();
+		return galleryItems.size();
 	}
 
 	@Override
