@@ -19,6 +19,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -36,6 +37,7 @@ public class SessionAccess extends FragmentActivity implements
 	private Uri fileUri;
 	private Boolean D = true;
 	public String TAG = PrivateConstants.TAG;
+	private File videosFolder;
 
 	Boolean isRegistered = false;
 	String rowID;
@@ -45,6 +47,11 @@ public class SessionAccess extends FragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_session_access);
+		
+		// Create videos folder if not already present
+		videosFolder = new File(Environment.getExternalStorageDirectory(),
+				"FieldDBSessions");
+		videosFolder.mkdir();
 
 		mRow_IDText = (EditText) findViewById(R.id.row_id);
 		rowID = mRow_IDText.getText().toString();
@@ -65,36 +72,42 @@ public class SessionAccess extends FragmentActivity implements
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, VIDEO_GALLERY_VIEW_ID, 0, R.string.menu_view_video_gallery);
-		menu.add(0, SESSION_LIST_VIEW_ID, 0, R.string.menu_view_session_list);
-		menu.add(0, NEW_VIDEO_ID, 0, R.string.menu_new_video);
-		return true;
+		MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.video_menu, menu);
+	    return true;
 	}
 
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+
 		switch (item.getItemId()) {
-		case VIDEO_GALLERY_VIEW_ID:
-			showVideoGallery();
-			return true;
-		case SESSION_LIST_VIEW_ID:
-			showSessionList();
-			return true;
-		case NEW_VIDEO_ID:
+		case R.id.action_new_video:
 			recordVideo();
-			return true;
+			break;
+		case R.id.action_video_gallery:
+//			showVideoGallery();
+			this.onBackPressed();
+			break;
+
+		default:
+			break;
 		}
-		return super.onMenuItemSelected(featureId, item);
+
+		// return super.onMenuItemSelected(featureId, item);
+		return true;
+		
 	}
 
 	private void showVideoGallery() {
 		Intent i = new Intent(this, GalleryView.class);
 		startActivity(i);
+		//TODO this should call finish otherwise we are stacking up activities
 	}
 
 	public void showSessionList() {
 		Intent i = new Intent(this, SessionListView.class);
 		startActivity(i);
+		//TODO this should call finish otherwise we are stacking up activities
 	}
 
 	public void recordVideo() {
@@ -124,14 +137,14 @@ public class SessionAccess extends FragmentActivity implements
 
 		// Test to see if FieldDB video folder exists; if not, create it
 		File folder = new File(Environment.getExternalStorageDirectory()
-				+ "/fielddb_session_recorder");
+				+ "/wedding_guest_book");
 		if (!folder.exists()) {
 			folder.mkdir();
 		}
 
 		String videoTitle = (new StringBuilder())
 				.append(Environment.getExternalStorageDirectory())
-				.append("/fielddb_session_recorder/fielddb_session_" + time
+				.append("/wedding_guest_book/"+PrivateConstants.DATA_KEYWORD+"_session_" + time
 						+ "_" + rowID + ".3gp").toString();
 
 		File f = new File(videoTitle);
@@ -193,6 +206,14 @@ public class SessionAccess extends FragmentActivity implements
 			PlayVideoFragment playVideoFragment = (PlayVideoFragment) getSupportFragmentManager()
 					.findFragmentById(R.id.playVideoFragment);
 			playVideoFragment.setVideo(videoID);
+			
+			Intent uploadVideo = new Intent(getApplicationContext()
+					.getApplicationContext(), UploadVideo.class);
+			String filePath = fileUri.getPath();
+			String fileName = videoID;
+			uploadVideo.putExtra(PrivateConstants.EXTRA_FILENAME, fileName);
+			uploadVideo.putExtra(PrivateConstants.EXTRA_FILEPATH, filePath);
+			getApplicationContext().startService(uploadVideo);
 		}
 	}
 

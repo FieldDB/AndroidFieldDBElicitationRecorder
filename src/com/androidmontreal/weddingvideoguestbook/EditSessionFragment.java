@@ -28,6 +28,7 @@ public class EditSessionFragment extends Fragment {
 		View view = inflater.inflate(R.layout.fragment_edit_session, container,
 				false);
 
+		//TODO shouldnt do this in resume instead?
 		mDbHelper = new DatumsDbAdapter(view.getContext());
 		mDbHelper.open();
 
@@ -73,6 +74,12 @@ public class EditSessionFragment extends Fragment {
 			populateFields();
 		}
 		return view;
+	}
+	
+	@Override
+	public void onDestroy() {
+		mDbHelper.close();
+		super.onDestroy();
 	}
 
 	private void populateFields() {

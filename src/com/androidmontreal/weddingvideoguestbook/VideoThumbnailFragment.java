@@ -92,7 +92,7 @@ public class VideoThumbnailFragment extends Fragment {
 				String videoTitle = cursor.getString(videoTitleIndex);
 				String[] videoTitleParts = videoTitle.split("[.]");
 				String[] videoTitleSubParts = videoTitleParts[0].split("_");
-				if (videoTitleSubParts[0].equals("fielddb")) {
+				if (videoTitleSubParts[0].equals(PrivateConstants.DATA_KEYWORD)) {
 					Long rowID;
 					try {
 						rowID = Long.parseLong(videoTitleSubParts[3]);

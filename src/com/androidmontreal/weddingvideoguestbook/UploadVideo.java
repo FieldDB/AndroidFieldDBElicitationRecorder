@@ -63,6 +63,12 @@ public class UploadVideo extends IntentService {
 			Log.e(TAG, "Invalid call to UploadVideo intent service.");
 			return;
 		}
+		
+		// Make sure the file exists
+		if(!new File(dataFile).exists()){
+			Log.e(TAG, "Invalid call to UploadVideo intent service, file does not exist.");
+			return;
+		}
 
 		// tryUploadAgain
 		Intent tryUploadAgain = new Intent(this, UploadVideo.class);
