@@ -30,7 +30,7 @@
             android:label="@string/app_name" >
         </activity>
         
-        <activity android:name="com.androidmontreal.weddingvideoguestbook.GalleryView" >
+        <activity android:name="com.androidmontreal.weddingvideoguestbook.GalleryActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

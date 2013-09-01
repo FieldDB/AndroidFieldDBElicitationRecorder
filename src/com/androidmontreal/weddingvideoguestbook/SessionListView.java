@@ -169,7 +169,7 @@ public class SessionListView extends ListActivity {
 	}
 
 	private void showVideoGallery() {
-		Intent i = new Intent(this, GalleryView.class);
+		Intent i = new Intent(this, GalleryActivity.class);
 		startActivity(i);
 	}
 

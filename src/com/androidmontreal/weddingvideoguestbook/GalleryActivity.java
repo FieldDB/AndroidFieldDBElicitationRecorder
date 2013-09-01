@@ -1,5 +1,6 @@
 package com.androidmontreal.weddingvideoguestbook;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -9,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -20,7 +22,7 @@ import android.widget.GridView;
 import com.androidmontreal.weddingvideoguestbook.db.DBItem;
 import com.google.analytics.tracking.android.EasyTracker;
 
-public class GalleryView extends Activity {
+public class GalleryActivity extends Activity {
 	public String TAG = PrivateConstants.TAG;
 	private static final int SESSION_LIST_VIEW_ID = Menu.FIRST;
 	private static final int NEW_SESSION_ID = Menu.FIRST + 1;
@@ -47,6 +49,7 @@ public class GalleryView extends Activity {
 		// to know the filenames
 		// TODO this wasnt showing the video we just recorded (onResume woudl
 		// improve this?)
+
 		ContentResolver cr = getContentResolver();
 		String[] proj = { BaseColumns._ID, MediaStore.Video.Media.DATA,
 				MediaStore.Video.VideoColumns.TITLE,
