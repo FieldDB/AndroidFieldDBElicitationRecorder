@@ -5,12 +5,12 @@
         android:orderInCategory="100"
         android:showAsAction="always|withText"
         android:icon="@android:drawable/ic_menu_camera"
-        android:title="Enregistré votre message"/>
+        android:title="Enregistrer votre message"/>
      <item
         android:id="@+id/action_video_gallery"
         android:icon="@android:drawable/ic_menu_slideshow"
         android:orderInCategory="100"
         android:showAsAction="always|withText"
-        android:title="Page pincipale"/>
+        android:title="Page principale"/>
    
 </menu> 

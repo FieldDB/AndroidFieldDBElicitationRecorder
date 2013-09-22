@@ -30,8 +30,9 @@ public class GalleryActivity extends Activity {
 	private DatumsDbAdapter mDbHelper;
 
 	GridView gridView;
+	
+//	ArrayList<DBItem> galleryItems = new ArrayList<DBItem>();
 
-	ArrayList<DBItem> galleryItems = new ArrayList<DBItem>();
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -44,6 +45,9 @@ public class GalleryActivity extends Activity {
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
+		
+		ArrayList<DBItem> galleryItems = new ArrayList<DBItem>();
+		
 		// Query for all videos on external storage
 		// TODO instead open all videos in the app's folder? or use the database
 		// to know the filenames
@@ -124,6 +128,9 @@ public class GalleryActivity extends Activity {
 
 		gridView = (GridView) findViewById(R.id.galleryGridView);
 
+		Log.v(TAG, "galleryItems Size:");
+		Log.v(TAG, "" + galleryItems.size());
+		
 		gridView.setAdapter(new GalleryImageAdapter(this, galleryItems));
 
 		// Get device details
