@@ -23,6 +23,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.media.ThumbnailUtils;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -152,7 +153,10 @@ public class GalleryImageAdapter extends BaseAdapter {
 	}
 
 	public static Bitmap getRoundedCornerBitmap(String thumbnailPath, int pixels) {
-
+		if(thumbnailPath == null){
+			Log.e(PrivateConstants.TAG, "thumbnailPath is null");
+			return null;
+		}
 		if (new File(thumbnailPath).exists()) {
 			return BitmapFactory.decodeFile(thumbnailPath);
 		} else {
@@ -162,7 +166,12 @@ public class GalleryImageAdapter extends BaseAdapter {
 
 			Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(videoPath,
 					MediaStore.Images.Thumbnails.MINI_KIND);
-
+			
+			if(thumbnail == null){
+				Log.e(PrivateConstants.TAG, "thumbnail is null");
+				return null;
+			}
+			
 			Bitmap roundedThumbnail = Bitmap.createBitmap(thumbnail.getWidth(),
 					thumbnail.getHeight(), Config.ARGB_8888);
 			Canvas canvas = new Canvas(roundedThumbnail);
