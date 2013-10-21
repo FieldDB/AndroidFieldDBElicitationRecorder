@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,6 +52,10 @@ public class PlayVideoFragment extends Fragment {
 					new String[] { filename }, null);
 
 			cursor.moveToFirst();
+			if(cursor.getCount() < 1){
+				Log.e(PrivateConstants.TAG, "The cursor was empty, not showing the video.");
+				return;
+			}
 		} catch (Exception e) {
 			return;
 		}

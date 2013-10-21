@@ -59,9 +59,9 @@ public class GalleryImageAdapter extends BaseAdapter {
 			rowId = galleryItems.get(position).getId();
 			mDbHelper = new DatumsDbAdapter(context);
 			mDbHelper.open();
-			Cursor note = mDbHelper.fetchNote(rowId);
+			Cursor sessionEntry = mDbHelper.fetchNote(rowId);
 			mDbHelper.close();
-			if (note == null) {
+			if (sessionEntry == null) {
 				return null;
 			}
 
@@ -72,9 +72,9 @@ public class GalleryImageAdapter extends BaseAdapter {
 			String imageLabelText;
 
 			try {
-				tempGoal = note.getString(note
+				tempGoal = sessionEntry.getString(sessionEntry
 						.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD1));
-				tempDate = note.getString(note
+				tempDate = sessionEntry.getString(sessionEntry
 						.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD5));
 
 				if (tempGoal.length() > 16) {
@@ -87,12 +87,17 @@ public class GalleryImageAdapter extends BaseAdapter {
 				imageLabelText = goal.concat("\n").concat(tempDate);
 
 			} catch (Exception e) {
+				Log.e(TAG, "Error opening session details");
 				return null;
 			}
 
 			String thumbnailPath = galleryItems.get(position)
 					.getThumbnailImagePath().replace(".3gp", ".png");
 			Bitmap roundedThumbnail = getRoundedCornerBitmap(thumbnailPath, 30);
+			if(roundedThumbnail == null){
+				Log.e(TAG, "Error opening session thumbnail");
+				return null;
+			}
 
 			// Set value of textview
 			TextView textView = (TextView) gridView
@@ -112,9 +117,7 @@ public class GalleryImageAdapter extends BaseAdapter {
 			ImageView imageView = (ImageView) gridView
 					.findViewById(R.id.grid_item_image);
 
-			if (roundedThumbnail != null) {
-				imageView.setImageBitmap(roundedThumbnail);
-			}
+			imageView.setImageBitmap(roundedThumbnail);
 			/* No such method on android 4.0 */
 			// imageView.setBackground(d);
 			imageView.setTag(R.id.VIDEO_FILENAME_TAG_KEY,
