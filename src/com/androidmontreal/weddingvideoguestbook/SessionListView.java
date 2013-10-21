@@ -112,7 +112,7 @@ public class SessionListView extends ListActivity {
 											.split("[.]");
 
 									String[] videoTitleSubParts = videoTitleParts[0]
-											.split("_");
+											.split(PrivateConstants.DELIMITER);
 									if (videoTitleSubParts[0].equals(PrivateConstants.DATA_KEYWORD)) {
 										Long rowID = Long
 												.parseLong(videoTitleSubParts[3]);
@@ -182,8 +182,8 @@ public class SessionListView extends ListActivity {
 
 	private void fillData() {
 		// Get all of the rows from the database and create the item list
-		Cursor notesCursor = mDbHelper.fetchAllDatums();
-		startManagingCursor(notesCursor);
+		Cursor entriesCursor = mDbHelper.fetchAllDatums();
+		startManagingCursor(entriesCursor);
 
 		// Create an array to specify the fields we want to display in the list
 		String[] from = new String[] { DatumsDbAdapter.KEY_FIELD1,
@@ -198,15 +198,15 @@ public class SessionListView extends ListActivity {
 		// depending on device size
 		// Check for device size to determine size of gallery images
 		boolean tabletSize = getResources().getBoolean(R.bool.isTablet);
-		MyCursorAdapter notes;
+		MyCursorAdapter entries;
 		if (tabletSize == true) {
-			notes = new MyCursorAdapter(this, R.layout.session_list_row,
-					notesCursor, from, to, 0);
+			entries = new MyCursorAdapter(this, R.layout.session_list_row,
+					entriesCursor, from, to, 0);
 		} else {
-			notes = new MyCursorAdapter(this, R.layout.session_list_row_phones,
-					notesCursor, from, to, 0);
+			entries = new MyCursorAdapter(this, R.layout.session_list_row_phones,
+					entriesCursor, from, to, 0);
 		}
-		setListAdapter(notes);
+		setListAdapter(entries);
 
 	}
 

@@ -1,6 +1,5 @@
 package com.androidmontreal.weddingvideoguestbook;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -10,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -68,13 +66,13 @@ public class GalleryActivity extends Activity {
 						.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.TITLE);
 				String videoTitle = c.getString(videoTitleIndex);
 				String[] videoTitleParts = videoTitle.split("[.]");
-				String[] videoTitleSubParts = videoTitleParts[0].split("_");
+				String[] videoTitleSubParts = videoTitleParts[0].split(PrivateConstants.DELIMITER);
 
-				if (videoTitleSubParts[0].equals(PrivateConstants.DATA_KEYWORD)) {
+				if (videoTitle.contains(PrivateConstants.DATA_KEYWORD)) {
 					// Get SQL session id (row id)
 					Long rowID;
 					try {
-						rowID = Long.parseLong(videoTitleSubParts[3]);
+						rowID = Long.parseLong(videoTitleSubParts[2]);
 					} catch (Exception e) {
 						Log.v(TAG, "Found a malformed video file. "
 								+ videoTitle);
@@ -84,12 +82,12 @@ public class GalleryActivity extends Activity {
 					// video file
 					mDbHelper = new DatumsDbAdapter(this);
 					mDbHelper.open();
-					Cursor note = mDbHelper.fetchNote(rowID);
+					Cursor entry = mDbHelper.fetchNote(rowID);
 					mDbHelper.close();
 					String testString;
 					try {
-						testString = note
-								.getString(note
+						testString = entry
+								.getString(entry
 										.getColumnIndexOrThrow(DatumsDbAdapter.KEY_FIELD1));
 					} catch (Exception e) {
 						// No session file

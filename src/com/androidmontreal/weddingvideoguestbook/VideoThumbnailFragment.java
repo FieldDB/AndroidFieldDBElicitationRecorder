@@ -91,7 +91,7 @@ public class VideoThumbnailFragment extends Fragment {
 						.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.TITLE);
 				String videoTitle = cursor.getString(videoTitleIndex);
 				String[] videoTitleParts = videoTitle.split("[.]");
-				String[] videoTitleSubParts = videoTitleParts[0].split("_");
+				String[] videoTitleSubParts = videoTitleParts[0].split(PrivateConstants.DELIMITER);
 				if (videoTitleSubParts[0].equals(PrivateConstants.DATA_KEYWORD)) {
 					Long rowID;
 					try {
