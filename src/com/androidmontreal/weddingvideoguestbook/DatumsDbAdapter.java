@@ -9,8 +9,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 /**
- * Simple notes database access helper class. Defines the basic CRUD operations
- * for the notepad example, and gives the ability to list all notes as well as
+ * Simple entries database access helper class. Defines the basic CRUD operations
+ * for the notepad example, and gives the ability to list all entries as well as
  * retrieve or modify a specific note.
  * 
  * This has been improved from the first version of this tutorial through the
@@ -35,11 +35,8 @@ public class DatumsDbAdapter {
 	/**
 	 * Database creation sql statement
 	 */
-	private static final String DATABASE_CREATE = "create table notes (_id integer primary key autoincrement, "
-			+ "couch_id text not null, field1 text not null, field2 text not null, field3 text not null, field4 text not null, field5 text not null);";
-
 	private static final String DATABASE_NAME = PrivateConstants.DATA_KEYWORD+"sessions";
-	private static final String DATABASE_TABLE = "notes";
+	private static final String DATABASE_TABLE = "entries";
 	private static final int DATABASE_VERSION = 2;
 
 	private final Context mCtx;
@@ -52,7 +49,13 @@ public class DatumsDbAdapter {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-
+			String DATABASE_CREATE = "create table "
+					+ DATABASE_TABLE
+					+ " ("
+					+ KEY_ROWID
+					+ " integer primary key autoincrement, "
+					+ KEY_COUCH_ID
+					+ " text not null, field1 text not null, field2 text not null, field3 text not null, field4 text not null, field5 text not null);";
 			db.execSQL(DATABASE_CREATE);
 		}
 
@@ -60,7 +63,7 @@ public class DatumsDbAdapter {
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
 					+ newVersion + ", which will destroy all old data");
-			db.execSQL("DROP TABLE IF EXISTS notes");
+			db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE);
 			onCreate(db);
 		}
 	}
@@ -77,7 +80,7 @@ public class DatumsDbAdapter {
 	}
 
 	/**
-	 * Open the notes database. If it cannot be opened, try to create a new
+	 * Open the entries database. If it cannot be opened, try to create a new
 	 * instance of the database. If it cannot be created, throw an exception to
 	 * signal the failure
 	 * 
@@ -129,9 +132,9 @@ public class DatumsDbAdapter {
 	}
 
 	/**
-	 * Return a Cursor over the list of all notes in the database
+	 * Return a Cursor over the list of all entries in the database
 	 * 
-	 * @return Cursor over all notes
+	 * @return Cursor over all entries
 	 */
 	// public Cursor fetchAllDatums() {
 	//
@@ -192,9 +195,9 @@ public class DatumsDbAdapter {
 	}
 
 	/**
-	 * Return a Cursor over the list of all notes in the database
+	 * Return a Cursor over the list of all entries in the database
 	 * 
-	 * @return Cursor over all notes
+	 * @return Cursor over all entries
 	 */
 	public Cursor fetchAllDatums() {
 
