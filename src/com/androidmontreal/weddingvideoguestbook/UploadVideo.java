@@ -48,6 +48,11 @@ public class UploadVideo extends IntentService {
 		int notificationId = (int) System.currentTimeMillis();
 		String uploadStatusMessage = getString(R.string.preparing_upload);
 
+		/* TODO dont upload */
+		if(true){
+			return;
+		}
+		
 		if (uploadIntent.getExtras() == null) {
 			return;
 		}
