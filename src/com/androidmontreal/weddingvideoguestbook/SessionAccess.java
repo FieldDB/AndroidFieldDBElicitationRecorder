@@ -2,22 +2,20 @@ package com.androidmontreal.weddingvideoguestbook;
 
 import java.io.File;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -28,16 +26,13 @@ import com.google.analytics.tracking.android.EasyTracker;
 
 public class SessionAccess extends FragmentActivity implements
 		SessionRecorderPublicInterface {
-	private static final int VIDEO_GALLERY_VIEW_ID = Menu.FIRST;
-	private static final int SESSION_LIST_VIEW_ID = Menu.FIRST + 1;
-	private static final int NEW_VIDEO_ID = Menu.FIRST + 2;
 	private static final int RECORD_VIDEO = 0;
 	private EditText mRow_IDText;
 	private DeviceDetails mDeviceDetails;
-	private Uri fileUri;
+	private Uri mFileUri;
 	private Boolean D = true;
 	public String TAG = PrivateConstants.TAG;
-	private File videosFolder;
+	private String mVideosFolder;
 
 	Boolean isRegistered = false;
 	String rowID;
@@ -49,9 +44,9 @@ public class SessionAccess extends FragmentActivity implements
 		setContentView(R.layout.activity_session_access);
 		
 		// Create videos folder if not already present
-		videosFolder = new File(Environment.getExternalStorageDirectory(),
-				"FieldDBSessions");
-		videosFolder.mkdir();
+		mVideosFolder = Environment.getExternalStorageDirectory() + "/"
+				+ PrivateConstants.DATA_KEYWORD;
+		(new File(mVideosFolder)).mkdirs();
 
 		mRow_IDText = (EditText) findViewById(R.id.row_id);
 		rowID = mRow_IDText.getText().toString();
@@ -136,20 +131,15 @@ public class SessionAccess extends FragmentActivity implements
 		String time = String.valueOf(System.currentTimeMillis());
 
 		// Test to see if FieldDB video folder exists; if not, create it
-		File folder = new File(Environment.getExternalStorageDirectory()
-				+ "/wedding_guest_book");
-		if (!folder.exists()) {
-			folder.mkdir();
-		}
+		(new File(mVideosFolder)).mkdirs();
 
-		String videoTitle = (new StringBuilder())
-				.append(Environment.getExternalStorageDirectory())
-				.append("/wedding_guest_book/"+PrivateConstants.DATA_KEYWORD+"_session_" + time
-						+ "_" + rowID + ".3gp").toString();
+		String videoTitle = mVideosFolder + "/" + PrivateConstants.DATA_KEYWORD
+				+ PrivateConstants.DELIMITER + time
+				+ PrivateConstants.DELIMITER + rowID + ".3gp";
 
 		File f = new File(videoTitle);
-		fileUri = Uri.fromFile(f);
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+		mFileUri = Uri.fromFile(f);
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, mFileUri);
 		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
 		startActivityForResult(intent, RECORD_VIDEO);
 
@@ -167,40 +157,49 @@ public class SessionAccess extends FragmentActivity implements
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
-		if (requestCode == RECORD_VIDEO && resultCode != 0) {
+		if (requestCode == RECORD_VIDEO && resultCode == Activity.RESULT_OK) {
 
 			String videoID = data.getData().getLastPathSegment();
 
-			ContentResolver cr = getContentResolver();
-			Cursor cursor;
-			String[] projection = { BaseColumns._ID,
-					MediaStore.Video.Media.DATA,
-					MediaStore.Video.VideoColumns.TITLE,
-					MediaStore.Video.VideoColumns._ID };
-			try {
-				cursor = cr.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-						projection, MediaStore.Video.VideoColumns._ID
-								+ " LIKE ?", new String[] { videoID }, null);
-			} catch (Exception e) {
+			//TODO is this intended to insert into the media scanner by hand? 
+//			ContentResolver cr = getContentResolver();
+//			Cursor cursor;
+//			String[] projection = { BaseColumns._ID,
+//					MediaStore.Video.Media.DATA,
+//					MediaStore.Video.VideoColumns.TITLE,
+//					MediaStore.Video.VideoColumns._ID };
+//			try {
+//				cursor = cr.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+//						projection, MediaStore.Video.VideoColumns._ID
+//								+ " LIKE ?", new String[] { videoID }, null);
+//			} catch (Exception e) {
+//				return;
+//			}
+
+//			cursor.moveToFirst();
+
+//			ContentValues values = new ContentValues(3);
+
+//			String deviceDetails = getHardwareDetails();
+
+//			// Set values
+//			values.put(MediaStore.Video.VideoColumns.TITLE, videoID);
+//			values.put(MediaStore.Video.VideoColumns.DESCRIPTION, deviceDetails);
+
+//			values.put(MediaStore.Video.Media.DATA, data.getData().getPath());
+
+//			cr.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
+//			cursor.close();
+
+			if (data.getData() != null) {
+				Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+				intent.setData(data.getData());
+				sendBroadcast(intent);
+			}else{
+				Log.e(TAG, "No video was returned.");
 				return;
 			}
 
-			cursor.moveToFirst();
-
-			ContentValues values = new ContentValues(3);
-
-			String deviceDetails = getHardwareDetails();
-
-			// Set values
-			values.put(MediaStore.Video.VideoColumns.TITLE, videoID);
-			values.put(MediaStore.Video.VideoColumns.DESCRIPTION, deviceDetails);
-
-			values.put(MediaStore.Video.Media.DATA, fileUri.getPath());
-
-			cr.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
-			cursor.close();
-
-			new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, fileUri);
 
 			// Set new video to be played in fragment
 			PlayVideoFragment playVideoFragment = (PlayVideoFragment) getSupportFragmentManager()
@@ -209,7 +208,7 @@ public class SessionAccess extends FragmentActivity implements
 			
 			Intent uploadVideo = new Intent(getApplicationContext()
 					.getApplicationContext(), UploadVideo.class);
-			String filePath = fileUri.getPath();
+			String filePath = data.getData().getPath();
 			String fileName = videoID;
 			uploadVideo.putExtra(PrivateConstants.EXTRA_FILENAME, fileName);
 			uploadVideo.putExtra(PrivateConstants.EXTRA_FILEPATH, filePath);
